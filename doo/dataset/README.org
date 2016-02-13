@@ -1,0 +1,12 @@
+* samples
+** adding a key as a function of another key
+#+BEGIN_SRC python
+  import d
+
+  d.dataset.from_list(
+      [dict(a=42), dict(a=23)]
+  ).map(
+      key="a", out="a*2", fn=lambda x: x * 2
+  ).to_list()
+  # [{'a': 42, 'a*2': 84}, {'a': 23, 'a*2': 46}]
+#+END_SRC

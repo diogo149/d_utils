@@ -1,0 +1,23 @@
+* dependencies
+- required
+  - numpy
+  - scipy
+  - toolz
+  - six
+  - joblib
+  - PyYAML
+- optional
+  - scikit-image
+  - Pillow
+  - matplotlib
+  - cv2
+  - pydicom
+  - gdcm
+  - scikit-learn
+  - pandas
+  - six
+  - hyperopt
+  - pymongo
+  - cottonmouth
+- development
+  - nose
