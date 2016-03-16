@@ -21,5 +21,6 @@ my next iteration of random python tools (highly unstable)
   - hyperopt
   - pymongo
   - cottonmouth
+  - theano
 - development
   - nose

@@ -4,6 +4,7 @@ cv2_utils
 dicom_utils
 image_processing
 model
+theano_utils
 """.split()
 
 # this needs to happen before the other imports
