@@ -483,6 +483,20 @@ def transform_toc(in_gen, title, key=None, overrides=None, dissoc=False):
             yield in_datamap
 
 
+def transform_count(in_gen, title=None):
+    """
+    counts number of datamaps and prints the count out
+    """
+    count = 0
+    for in_datamap in in_gen:
+        count += 1
+        yield in_datamap
+    if title is not None:
+        print("%s count: %d" % (title, count))
+    else:
+        print("count: %d" % count)
+
+
 def transform_doall(in_gen, title=None, discard=True, n_iter=None):
     """
     evaluates sequence and optionally discards output. optionally logs times
@@ -779,6 +793,11 @@ class DatasetDSL(base.Dataset):
 
     def toc(self, *args, **kwargs):
         return self._stateless_transform(transform_toc,
+                                         *args,
+                                         **kwargs)
+
+    def count(self, *args, **kwargs):
+        return self._stateless_transform(transform_count,
                                          *args,
                                          **kwargs)
 
