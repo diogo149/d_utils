@@ -43,7 +43,7 @@ def convert_dicom_value(val, pixel_reader="pydicom"):
                     # "invalid literal for int() with base 10: '5.000000'"
                     if re.match(r"^invalid literal for int\(\) with base 10: '\d+.0*'$",
                                 str(e)):
-                        return res
+                        continue
                     else:
                         raise e
                 if data_element is not None:
