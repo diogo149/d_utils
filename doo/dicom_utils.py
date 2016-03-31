@@ -2,6 +2,7 @@ from __future__ import division, absolute_import
 from __future__ import print_function, unicode_literals
 
 
+import re
 import dicom
 import numpy as np
 
@@ -35,7 +36,16 @@ def convert_dicom_value(val, pixel_reader="pydicom"):
                     raise ValueError("Unknown pixel_reader value: {}"
                                      .format(pixel_reader))
             else:
-                data_element = val.data_element(key)
+                try:
+                    data_element = val.data_element(key)
+                except Exception as e:
+                    # handle case of:
+                    # "invalid literal for int() with base 10: '5.000000'"
+                    if re.match(r"^invalid literal for int\(\) with base 10: '\d+.0*'$",
+                                str(e)):
+                        return res
+                    else:
+                        raise e
                 if data_element is not None:
                     res[key] = convert_dicom_value(data_element.value,
                                                    pixel_reader)
