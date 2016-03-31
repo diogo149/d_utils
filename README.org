@@ -17,7 +17,6 @@ my next iteration of random python tools (highly unstable)
   - gdcm
   - scikit-learn
   - pandas
-  - six
   - hyperopt
   - pymongo
   - cottonmouth
