@@ -527,12 +527,6 @@ def transform_repeat_all(in_gen):
 class DatasetDSL(base.Dataset):
 
     def __init__(self, dataset):
-        """
-        A DSL for datasets that combines a lot of the tooling
-
-        Please see doo/examples/dataset/DatasetExamples.ipynb for working
-        examples of these operations.
-        """
         assert isinstance(dataset, base.Dataset)
         if isinstance(dataset, DatasetDSL):
             self.dataset = dataset.dataset
