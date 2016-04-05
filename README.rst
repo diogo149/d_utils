@@ -6,13 +6,16 @@ dependencies
 ------------
 
 * required
+
   * numpy
   * scipy
   * toolz
   * six
   * joblib
   * PyYAML
+  
 * optional
+
   * scikit-image
   * Pillow
   * matplotlib
@@ -25,5 +28,7 @@ dependencies
   * pymongo
   * cottonmouth
   * theano
+  
 * development
+
   * nose
