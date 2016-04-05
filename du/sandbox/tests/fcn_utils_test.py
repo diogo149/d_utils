@@ -2,7 +2,7 @@ from __future__ import division, absolute_import
 from __future__ import print_function, unicode_literals
 
 import numpy as np
-from doo.sandbox import fcn_utils
+from du.sandbox import fcn_utils
 
 
 def test_block_apply_with_border_simple():

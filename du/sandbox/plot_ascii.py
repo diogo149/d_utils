@@ -3,7 +3,7 @@
 modified from https://github.com/shawntan/theano_toolkit/
 """
 import numpy as np
-import doo
+import du
 
 
 def plot_ascii(arr, scale="auto", abs_val=True, epsilon=1e-8, **printoptions):
@@ -33,7 +33,7 @@ def plot_ascii(arr, scale="auto", abs_val=True, epsilon=1e-8, **printoptions):
             color_start, color_end = "", ""
         return color_start + chars[step] + color_end
 
-    with doo.numpy_utils.printoptions(**printoptions):
+    with du.numpy_utils.printoptions(**printoptions):
         print np.array2string(
             arr,
             formatter={'float_kind': lambda x: visual(x)},

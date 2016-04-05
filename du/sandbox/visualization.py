@@ -4,7 +4,7 @@ from __future__ import print_function, unicode_literals
 import numpy as np
 import pylab
 import matplotlib
-import doo
+import du
 
 from .plot_training_curves import plot_training_curves
 
@@ -83,7 +83,7 @@ def plot_path(path):
 #     import numpy as np
 #     data = []
 #     for iteration_num in iteration_nums:
-#         trial = doo.trial.TrialState(trial_name, iteration_num, trials_dir)
+#         trial = du.trial.TrialState(trial_name, iteration_num, trials_dir)
 #         trial.load()
 #         for y_key, y_unit in y_pairs:
 #             x = np.array(trial.get(x_key))

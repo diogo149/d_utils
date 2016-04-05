@@ -2,9 +2,9 @@ import time
 
 import numpy as np
 
-from doo.parallel.multiprocessing_generator import mp_generator
-import doo._test_utils
-from doo._test_utils import assert_time
+from du.parallel.multiprocessing_generator import mp_generator
+import du._test_utils
+from du._test_utils import assert_time
 
 
 FOO_COUNT = 10
@@ -19,7 +19,7 @@ def foo(index, delay=FOO_DELAY):
         yield z
 
 
-@doo._test_utils.slow
+@du._test_utils.slow
 def test_mp_generator():
     N_JOBS = 3
     sums = set()

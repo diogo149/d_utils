@@ -5,7 +5,7 @@ features:
 - copies the source of the file you're using to run it
   (to have a copy of the file)
   (WARNING: there can be a race condition if the file changes before the trial
-   code is run - the earlier you import doo, the less likely this is to
+   code is run - the earlier you import du, the less likely this is to
    occur, due to the cache_inspect function)
 - creates a directory where files for the run can be stored without worrying
   about collisions

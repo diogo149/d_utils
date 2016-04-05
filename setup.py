@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="doo",
+    name="du",
     version="0.0.1",
-    packages=["doo"],
+    packages=["du"],
 )

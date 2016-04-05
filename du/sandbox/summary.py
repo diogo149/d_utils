@@ -10,7 +10,7 @@ eg.
 >>> print s.to_org_list()
 - foo: 3
 """
-import doo
+import du
 
 
 class Summary(object):
@@ -45,7 +45,7 @@ class Summary(object):
         - on_change: function which gets called with the current summary object
           when updated
         """
-        params = doo.AttrDict(
+        params = du.AttrDict(
             how="last",
             format="%s",
             value=None,
@@ -245,4 +245,4 @@ def max_gpu_memory_MB(summary, trial=None):
             trial.store_important("max_gpu_memory_MB", max_gpu_memory_MB)
     else:
         # http://deeplearning.net/software/theano/tutorial/profiling.html
-        doo.error("Will not be able to log GPU memory consumption")
+        du.error("Will not be able to log GPU memory consumption")

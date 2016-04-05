@@ -1,9 +1,9 @@
 import numpy as np
 import scipy.misc
-from doo.preprocessing.image import (get_block_with_center_and_shape,
-                                     strided_downsample,
-                                     resize_antialias)
-from doo._test_utils import numpy_equal, numpy_almost_equal, equal, raises
+from du.preprocessing.image import (get_block_with_center_and_shape,
+                                    strided_downsample,
+                                    resize_antialias)
+from du._test_utils import numpy_equal, numpy_almost_equal, equal, raises
 
 lena_raw = scipy.misc.lena()
 lena = lena_raw / 255.0

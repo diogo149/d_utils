@@ -1,12 +1,12 @@
-import doo
+import du
 import canopy
 
 
 def save_network(trial, name, network):
-    with doo.timer("serializing network (%s) for %s:%d"
-                   % (name, trial.trial_name, trial.iteration_num)):
+    with du.timer("serializing network (%s) for %s:%d"
+                  % (name, trial.trial_name, trial.iteration_num)):
         value_dict = canopy.network_utils.to_value_dict(network)
-        doo.joblib_utils.dump_dir(
+        du.joblib_utils.dump_dir(
             value_dict, trial.file_path(name + "_values"))
         canopy.serialization.pickle_network(
             network, trial.file_path(name + "_network"))
@@ -45,7 +45,7 @@ def load_previous_network(trial_name,
     >>>                                 network)
     """
     # load previous trial
-    tmp_trial = doo.trial.TrialState(
+    tmp_trial = du.trial.TrialState(
         trial_name,
         iteration_num,
         trials_dir=trials_dir)
@@ -56,9 +56,9 @@ def load_previous_network(trial_name,
     else:
         assert network is not None
         # put old values into given network
-        doo.info("Loading previous network values: %d",
-                 iteration_num)
-        value_dict = doo.joblib_utils.load_dir(
+        du.info("Loading previous network values: %d",
+                iteration_num)
+        value_dict = du.joblib_utils.load_dir(
             tmp_trial.file_path("best_values"))
 
         if strict:

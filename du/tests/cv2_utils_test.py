@@ -3,8 +3,8 @@ import numpy as np
 import scipy.misc
 import cv2
 
-from doo._test_utils import equal, numpy_almost_equal
-from doo import cv2_utils
+from du._test_utils import equal, numpy_almost_equal
+from du import cv2_utils
 
 lena = scipy.misc.lena() / 255.0
 affine_identity = np.eye(2, 3)

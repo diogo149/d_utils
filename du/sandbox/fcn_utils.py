@@ -1,6 +1,6 @@
 import itertools
 import numpy as np
-import doo
+import du
 
 
 def block_apply_with_border(arr,
@@ -101,7 +101,7 @@ def block_apply_with_border(arr,
             result_slices = tuple(result_slices)
             intermediate_slices = tuple(intermediate_slices)
 
-            block = doo.preprocessing.image.get_block_with_corner_and_shape(
+            block = du.preprocessing.image.get_block_with_corner_and_shape(
                 data=arr,
                 corner=corner,
                 shape=input_shape,
@@ -117,7 +117,7 @@ def block_apply_with_border(arr,
     else:
         gen = data_gen()
         while True:
-            data = list(doo.toolz.take(batch_size, gen))
+            data = list(du.toolz.take(batch_size, gen))
             if not data:
                 break
 

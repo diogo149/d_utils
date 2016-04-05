@@ -3,8 +3,8 @@ utilities for test time augmentation
 """
 
 import numpy as np
-import doo
-import doo.data_augmentation.image2d
+import du
+import du.data_augmentation.image2d
 
 
 def affine_2d_tta(test_fn,
@@ -23,12 +23,12 @@ def affine_2d_tta(test_fn,
     bc01 format image
 
     affine_params:
-    dict of keyword arguments for doo.data_augmentation.image2d.random_affine
+    dict of keyword arguments for du.data_augmentation.image2d.random_affine
     """
 
     def augment(img):
         img = img.swapaxes(0, 2)
-        img = doo.data_augmentation.image2d.random_affine(
+        img = du.data_augmentation.image2d.random_affine(
             img,
             **affine_params
         )

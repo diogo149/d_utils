@@ -1,7 +1,7 @@
 from hyperopt import hp
 
-import doo.sandbox.hyperopt_utils
-from doo._test_utils import equal
+import du.sandbox.hyperopt_utils
+from du._test_utils import equal
 
 
 def test_space_to_data():
@@ -28,5 +28,5 @@ def test_space_to_data():
         'i': ('randint', [4], {}),
         'j': ('randint', [5], {})
     }
-    equal(doo.sandbox.hyperopt_utils.space_to_data(hyperopt_space),
+    equal(du.sandbox.hyperopt_utils.space_to_data(hyperopt_space),
           space_as_data)

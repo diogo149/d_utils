@@ -1,10 +1,10 @@
 import tempfile
 import numpy as np
-import doo
-from doo.numpy_utils import (expand_dim,
-                             memmap_concatenate,
-                             constant_value_array)
-from doo._test_utils import equal
+import du
+from du.numpy_utils import (expand_dim,
+                            memmap_concatenate,
+                            constant_value_array)
+from du._test_utils import equal
 
 
 def test_expand_dim():
@@ -32,5 +32,5 @@ def test_generator_std():
     x2 = 0.32 * np.random.rand(100, 34) + 2.0
     x3 = 1.5 * np.random.rand(100, 100) - 1.0
     xs = [x1, x2, x3]
-    np.testing.assert_allclose(doo.numpy_utils.generator_std(xs, axis=1),
+    np.testing.assert_allclose(du.numpy_utils.generator_std(xs, axis=1),
                                np.concatenate(xs, axis=1).std(axis=1))

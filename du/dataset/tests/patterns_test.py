@@ -1,11 +1,11 @@
-import doo
-import doo._test_utils
+import du
+import du._test_utils
 
-from doo._test_utils import eq_
+from du._test_utils import eq_
 
 
 def _test_papply1(m):
-    x = doo.parallel.multiprocessing_generator.PROCESS_IDXS[-1]
+    x = du.parallel.multiprocessing_generator.PROCESS_IDXS[-1]
     return x
 
 
@@ -17,24 +17,24 @@ def _test_papply2(ds):
 
 def test_papply():
     for x in range(5):
-        l = doo.dataset.from_list([{}] * 100).apply(
-            doo.dataset.patterns.papply,
+        l = du.dataset.from_list([{}] * 100).apply(
+            du.dataset.patterns.papply,
             kwargs=dict(fn=_test_papply2, n_jobs=x),
         ).to_list(
         )
         processes = x if x > 0 else 1
         eq_(set(l), set(range(processes)))
         # there should be an equal-ish distribution of work:
-        eq_(doo.toolz.frequencies(l),
-            doo.toolz.frequencies((range(processes) * 100)[:100]))
+        eq_(du.toolz.frequencies(l),
+            du.toolz.frequencies((range(processes) * 100)[:100]))
 
 
 def test_subdataset_apply():
     def foo(ds):
         return ds.mapcat_key(key="a", fn=lambda x: [x, 2 * x]).chunk()
 
-    ds = doo.dataset.from_list([{"a": 2}, {"a": 3}]).apply(
-        doo.dataset.patterns.subdataset_apply,
+    ds = du.dataset.from_list([{"a": 2}, {"a": 3}]).apply(
+        du.dataset.patterns.subdataset_apply,
         kwargs=dict(
             fn=foo
         ))

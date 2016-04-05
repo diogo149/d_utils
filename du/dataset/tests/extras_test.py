@@ -1,7 +1,7 @@
-import doo
-import doo._test_utils
+import du
+import du._test_utils
 
-from doo._test_utils import eq_
+from du._test_utils import eq_
 
 
 def sample_data1():
@@ -12,11 +12,11 @@ def sample_data1():
 def test_validation_split():
     xs = [1, 2, 3, 1, 2, 3, 2, 3, 2]
     data = [dict(x=x) for x in xs]
-    ds = doo.dataset.from_list(data).filter(
+    ds = du.dataset.from_list(data).filter(
         key="x",
-        fn=doo.dataset.extras.validation_split(
+        fn=du.dataset.extras.validation_split(
             validation_ratio=0.5,
             is_validation_set=True,
         ))
-    eq_(doo.toolz.frequencies(map(lambda x: x["x"], ds.to_list())),
+    eq_(du.toolz.frequencies(map(lambda x: x["x"], ds.to_list())),
         {1: 2, 2: 4})

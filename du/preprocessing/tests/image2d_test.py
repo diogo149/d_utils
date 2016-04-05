@@ -1,12 +1,12 @@
 import numpy as np
 import scipy.misc
 
-from doo.preprocessing.image2d import affine_transform
-from doo._test_utils import (numpy_almost_equal,
-                             equal,
-                             numpy_allclose,
-                             numpy_not_allclose,
-                             numpy_not_almost_equal)
+from du.preprocessing.image2d import affine_transform
+from du._test_utils import (numpy_almost_equal,
+                            equal,
+                            numpy_allclose,
+                            numpy_not_allclose,
+                            numpy_not_almost_equal)
 
 lena = scipy.misc.lena() / 255.0
 

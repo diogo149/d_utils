@@ -1,11 +1,11 @@
-import doo
-from doo._test_utils import equal
+import du
+from du._test_utils import equal
 
 
 def test_memoize():
     x = [0]
 
-    @doo.memoize
+    @du.memoize
     def foo():
         x[0] += 1
 
@@ -17,7 +17,7 @@ def test_memoize():
 
 
 def test_attr_dict():
-    x = doo.AttrDict(foo=3, bar=2)
+    x = du.AttrDict(foo=3, bar=2)
     equal(x.foo, 3)
     x.bar = 4
     equal(x.bar, 4)

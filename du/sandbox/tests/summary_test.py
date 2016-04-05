@@ -1,5 +1,5 @@
 import nose.tools as nt
-from doo.sandbox import summary
+from du.sandbox import summary
 
 
 def test_to_org_list():

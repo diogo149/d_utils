@@ -1,8 +1,8 @@
 import scipy.misc
 
-from doo.preprocessing.image2d import affine_transform
-from doo.data_augmentation.image2d import random_affine, random_affine_fn
-from doo._test_utils import numpy_almost_equal, raises
+from du.preprocessing.image2d import affine_transform
+from du.data_augmentation.image2d import random_affine, random_affine_fn
+from du._test_utils import numpy_almost_equal, raises
 
 lena = scipy.misc.lena() / 255.0
 
