@@ -1,6 +1,9 @@
-* du
+du
+===
 d utils - my next iteration of random python tools (highly unstable)
-* dependencies
+
+dependencies
+===
 - required
   - numpy
   - scipy
