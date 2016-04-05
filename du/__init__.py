@@ -1,3 +1,15 @@
+__version__ = "0.0.1.dev0"
+
+__title__ = "du"
+__description__ = "random utils"
+__uri__ = "https://github.com/diogo149/du"
+
+__author__ = "Diogo Almeida"
+__email__ = "diogo149@gmai.com"
+
+__license__ = "MIT"
+__copyright__ = "Copyright (c) 2015 Diogo Almeida"
+
 __all__ = """
 _test_utils
 cv2_utils
