@@ -38,3 +38,13 @@ def is_shared_variable(x):
 
 def is_variable(x):
     return is_nonshared_variable(x) or is_shared_variable(x)
+
+
+def shared_zeros(shape, dtype=fX):
+    """
+    create shared variable with zeros
+
+    rationale:
+    - by default, casts to floatX
+    """
+    return theano.shared(np.zeros(shape=shape, dtype=dtype))
