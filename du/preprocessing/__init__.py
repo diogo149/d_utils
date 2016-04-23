@@ -1,3 +1,5 @@
-from threshold_standard_scaler import ThresholdStandardScaler
-import image
-import image2d
+__all__ = """
+threshold_standard_scaler
+image
+image2d
+""".split()

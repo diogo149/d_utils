@@ -1,2 +1,4 @@
-import image
-import image2d
+__all__ = """
+image
+image2d
+""".split()
