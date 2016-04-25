@@ -107,7 +107,7 @@ def collection_walk(obj,
     like walk, but more efficient while only working on (predefined)
     collections
 
-    NOTE: does not talk in the same order as walk
+    NOTE: does not walk in the same order as walk function
     """
     parent_ids = set()
 
