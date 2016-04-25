@@ -131,8 +131,15 @@ def collection_walk(obj,
             if isinstance(prewalked, list):
                 inner_walked = [perform_walk(item) for item in prewalked]
             elif isinstance(prewalked, dict):
-                inner_walked = {perform_walk(key): perform_walk(value)
-                                for key, value in prewalked.items()}
+                if prewalked.__class__ is dict:
+                    inner_walked = {perform_walk(key): perform_walk(value)
+                                    for key, value in prewalked.items()}
+                else:
+                    # use class constructor
+                    # example use case: OrderedDict
+                    cls = prewalked.__class__
+                    inner_walked = cls([(perform_walk(key), perform_walk(value))
+                                        for key, value in prewalked.items()])
             elif isinstance(prewalked, tuple):
                 inner_walked = tuple([perform_walk(item)
                                       for item in prewalked])
