@@ -77,11 +77,11 @@ def reber_grammar_minibatch(batch_size, dtype, min_length=10):
     inputs, outputs = zip(*examples)
     lengths = map(len, inputs)
     max_length = max(lengths)
-    x = np.zeros((batch_size, max_length), dtype=dtype)
-    y = np.zeros((batch_size, max_length), dtype=dtype)
+    x = np.zeros((batch_size, max_length, 7), dtype=dtype)
+    y = np.zeros((batch_size, max_length, 7), dtype=dtype)
     for i in range(batch_size):
-        x[i, :lengths[i]] = inputs[i]
-        y[i, :lengths[i]] = outputs[i]
+        x[i, :lengths[i]] = np.array(inputs[i], dtype=dtype)
+        y[i, :lengths[i]] = np.array(outputs[i], dtype=dtype)
     lengths = np.array(lengths, dtype=dtype)
     return {"x": x, "y": y, "lengths": lengths}
 
@@ -93,10 +93,10 @@ def embedded_reber_grammar_minibatch(batch_size, dtype, min_length=10):
     inputs, outputs = zip(*examples)
     lengths = map(len, inputs)
     max_length = max(lengths)
-    x = np.zeros((batch_size, max_length), dtype=dtype)
-    y = np.zeros((batch_size, max_length), dtype=dtype)
+    x = np.zeros((batch_size, max_length, 7), dtype=dtype)
+    y = np.zeros((batch_size, max_length, 7), dtype=dtype)
     for i in range(batch_size):
-        x[i, :lengths[i]] = inputs[i]
-        y[i, :lengths[i]] = outputs[i]
+        x[i, :lengths[i]] = np.array(inputs[i], dtype=dtype)
+        y[i, :lengths[i]] = np.array(outputs[i], dtype=dtype)
     lengths = np.array(lengths, dtype=dtype)
     return {"x": x, "y": y, "lengths": lengths}
