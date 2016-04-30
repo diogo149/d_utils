@@ -1,1 +1,1 @@
-from .sequence_tasks import *
+from . import sequence_tasks
