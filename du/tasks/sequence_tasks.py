@@ -75,10 +75,28 @@ def reber_grammar_minibatch(batch_size, dtype, min_length=10):
     examples = reber_grammar_tasks.get_n_examples(n=batch_size,
                                                   minLength=min_length)
     inputs, outputs = zip(*examples)
-    # FIXME
-    return
+    lengths = map(len, inputs)
+    max_length = max(lengths)
+    x = np.zeros((batch_size, max_length), dtype=dtype)
+    y = np.zeros((batch_size, max_length), dtype=dtype)
+    for i in range(batch_size):
+        x[i, :lengths[i]] = inputs[i]
+        y[i, :lengths[i]] = outputs[i]
+    lengths = np.array(lengths, dtype=dtype)
+    return {"x": x, "y": y, "lengths": lengths}
 
 
-def embedded_reber_grammar_minibatch():
-    # FIXME
-    pass
+def embedded_reber_grammar_minibatch(batch_size, dtype, min_length=10):
+    examples = reber_grammar_tasks.get_n_embedded_examples(
+        n=batch_size,
+        minLength=min_length)
+    inputs, outputs = zip(*examples)
+    lengths = map(len, inputs)
+    max_length = max(lengths)
+    x = np.zeros((batch_size, max_length), dtype=dtype)
+    y = np.zeros((batch_size, max_length), dtype=dtype)
+    for i in range(batch_size):
+        x[i, :lengths[i]] = inputs[i]
+        y[i, :lengths[i]] = outputs[i]
+    lengths = np.array(lengths, dtype=dtype)
+    return {"x": x, "y": y, "lengths": lengths}
