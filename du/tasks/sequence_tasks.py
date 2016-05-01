@@ -53,7 +53,7 @@ def add_task_minibatch(min_length, max_length, batch_size, dtype):
     x = np.zeros((batch_size, max_length, 2), dtype=dtype)
     x[:, :, 0] = np.random.uniform(size=(batch_size, max_length))
     lengths = np.zeros((batch_size,), dtype=dtype)
-    y = np.zeros((batch_size,), dtype=dtype)
+    y = np.zeros((batch_size, 1), dtype=dtype)
     for n in range(batch_size):
         # randomly choose the sequence length
         if min_length == max_length:
@@ -68,7 +68,7 @@ def add_task_minibatch(min_length, max_length, batch_size, dtype):
         x[n, np.random.randint(length // 10), 1] = 1
         x[n, np.random.randint(length // 2, length), 1] = 1
         # multiply and sum the dimensions of x to get the target value
-        y[n] = np.sum(x[n, :, 0] * x[n, :, 1])
+        y[n, 0] = np.sum(x[n, :, 0] * x[n, :, 1])
     return {"x": x, "y": y, "lengths": lengths}
 
 # ############################## reber grammar ##############################
