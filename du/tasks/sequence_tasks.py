@@ -56,7 +56,10 @@ def add_task_minibatch(min_length, max_length, batch_size, dtype):
     y = np.zeros((batch_size,), dtype=dtype)
     for n in range(batch_size):
         # randomly choose the sequence length
-        length = np.random.randint(min_length, max_length)
+        if min_length == max_length:
+            length = min_length
+        else:
+            length = np.random.randint(min_length, max_length)
         # store length
         lengths[n] = length
         # zero out x after the end of the sequence
