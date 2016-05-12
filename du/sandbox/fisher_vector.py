@@ -27,7 +27,11 @@ class FisherVector(sklearn.base.BaseEstimator, sklearn.base.TransformerMixin):
         if self.descriptor == "sift":
             self.descriptor_ = cv2.SIFT()
         elif self.descriptor == "orb":
-            self.descriptor_ = cv2.ORB()
+            if hasattr(cv2, "ORB"):
+                # for cv2 version < 3
+                self.descriptor_ = cv2.ORB()
+            else:
+                self.descriptor_ = cv2.ORB_create()
         else:
             raise ValueError(self.descriptor)
         self.gmm_ = cv2.EM(self.n_components)
