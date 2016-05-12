@@ -34,6 +34,7 @@ class FisherVector(sklearn.base.BaseEstimator, sklearn.base.TransformerMixin):
                 self.descriptor_ = cv2.ORB_create()
         else:
             raise ValueError(self.descriptor)
+        # TODO this breaks for cv2 version >= 3
         self.gmm_ = cv2.EM(self.n_components)
 
     def validate_imgs(self, X):
