@@ -164,8 +164,10 @@ def html_hyperopt_report(trials_df,
     # FIXME handle missing X data (for conditional variables)
     X_df = trials_df.drop(["loss"], axis=1)
     X = X_df.as_matrix()
-    # make a copy so that the original dataframe isn't editted
-    y = trials_df.loss.fillna(0)
+    # fill in missing y with worst value
+    y = trials_df.loss
+    bad_idxs = np.isnan(y) | np.isinf(y)
+    y[bad_idxs] = y[~bad_idxs].max() + 1
 
     # sort the data
     sorted_trials_df = trials_df.sort(["loss"])
