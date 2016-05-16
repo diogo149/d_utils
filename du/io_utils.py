@@ -320,6 +320,28 @@ json_loads = json.loads
 
 json_load = json.load
 
+# ################################## jsonl ##################################
+
+
+def jsonl_load(filename):
+    """
+    read in a jsonl file
+    """
+    res = []
+    with open(filename) as f:
+        for line in f:
+            res.append(json_loads(line))
+    return res
+
+
+def jsonl_append(obj, filename, **kwargs):
+    """
+    appends an object to a jsonl file
+    """
+    with file_lock(filename + ".lock"):
+        with open(filename, "a") as f:
+            line = json_dumps(obj, **kwargs)
+            f.write(line + "\n")
 
 # ################################### yaml ###################################
 
