@@ -1,4 +1,8 @@
 import os
+import itertools
+import StringIO
+import urllib
+import base64
 import numpy as np
 import pandas as pd
 import hyperopt
@@ -88,15 +92,17 @@ def mongo_worker(mongo_url):
 
 def html_hyperopt_report(trials_df,
                          n_feature_importance=20,
-                         n_partial_dependence1=5,
-                         n_partial_dependence2=3,
+                         n_partial_dependence1=10,
+                         n_partial_dependence2=10,
                          n_feature_summary=10,
                          summary_bins=10,
                          categorical_threshold=10,
-                         feature_importance_clf_kwargs=None):
+                         feature_importance_clf_kwargs=None,
+                         decision_tree_percentiles=(10, 20, None),
+                         decision_tree_depth=4):
     """
-    n_head:
-    set to 0 to show all rows
+    trials_df:
+    data frame with key "loss" signifying what to minimize
 
     n_partial_dependence1:
     number of single feature partial dependence features to use
@@ -113,14 +119,15 @@ def html_hyperopt_report(trials_df,
     # know whether or not to log scale a certain variable
 
     from cottonmouth.html import render
+    from sklearn import tree
     from sklearn.ensemble import ExtraTreesRegressor
     from sklearn.ensemble import GradientBoostingRegressor
     from sklearn.ensemble.partial_dependence import plot_partial_dependence
-    import itertools
     from matplotlib import pyplot as plt
+    import pydot
 
     def float_format(x):
-        return "%.3g" % x
+        return "%.4g" % x
 
     def table(rows, title=None):
         res = ["div"]
@@ -135,16 +142,16 @@ def html_hyperopt_report(trials_df,
         res.append(table)
         return res
 
+    def png_to_uri(png_buf):
+        b64_encoded = urllib.quote(base64.b64encode(png_buf))
+        uri = 'data:image/png;base64,' + b64_encoded
+        return uri
+
     def matplotlib_to_uri(fig=None):
         """
         convert matplotlib figure to b64 encoded uri
         http://stackoverflow.com/questions/5314707/matplot-store-image-in-variable
         """
-        import matplotlib.pyplot as plt
-        import StringIO
-        import urllib
-        import base64
-
         if fig is None:
             fig = plt.gcf()
 
@@ -152,9 +159,25 @@ def html_hyperopt_report(trials_df,
         fig.savefig(imgdata, format='png')
         imgdata.seek(0)  # rewind the data
 
-        b64_encoded = urllib.quote(base64.b64encode(imgdata.buf))
-        uri = 'data:image/png;base64,' + b64_encoded
-        return uri
+        return png_to_uri(imgdata.buf)
+
+    def tree_to_uri(clf, feature_names):
+        """
+        converts a decision tree into image as a b64 encoded uri
+        """
+        dot_data = StringIO.StringIO()
+        tree.export_graphviz(clf,
+                             out_file=dot_data,
+                             # map to str to avoid unicode issues
+                             feature_names=map(str, feature_names),
+                             # WARNING: these flags require sklearn version >=
+                             # 0.17.1
+                             filled=True,
+                             rounded=True,
+                             special_characters=True,
+                             )
+        graph = pydot.graph_from_dot_data(dot_data.getvalue())
+        return png_to_uri(graph.create_png())
 
     # -------------
     # preprocessing
@@ -165,7 +188,7 @@ def html_hyperopt_report(trials_df,
     X_df = trials_df.drop(["loss"], axis=1)
     X = X_df.as_matrix()
     # fill in missing y with worst value
-    y = trials_df.loss
+    y = np.array(trials_df.loss)
     bad_idxs = np.isnan(y) | np.isinf(y)
     y[bad_idxs] = y[~bad_idxs].max() + 1
 
@@ -244,6 +267,22 @@ def html_hyperopt_report(trials_df,
             plot_uri=feat_plot_uri,
             summary_df=summary_df,
         ))
+
+    # creating decision tree
+    tree_titles_and_imgs = []
+    for percentile in decision_tree_percentiles:
+        if percentile is not None:
+            tmp_y = y < np.percentile(y, percentile)
+            clf = tree.DecisionTreeClassifier(max_depth=decision_tree_depth)
+            clf.fit(X, tmp_y)
+            title = "Classification tree for best %f%% of samples" % percentile
+        else:
+            clf = tree.DecisionTreeRegressor(max_depth=decision_tree_depth)
+            clf.fit(X, y)
+            title = "Regression tree for loss"
+        tree_img = tree_to_uri(clf, X_df.columns)
+        tree_titles_and_imgs.append((title, tree_img))
+
     # ---------------
     # creating report
     # ---------------
@@ -280,6 +319,15 @@ def html_hyperopt_report(trials_df,
             float_format=float_format),)
         feature_summaries_element.append(elem)
     body.append(feature_summaries_element)
+
+    # add tree imgs
+    tree_imgs_element = ["div", ["h1", "tree images"]]
+    for title, tree_img in tree_titles_and_imgs:
+        elem = ["div"]
+        elem.append(["h2", title])
+        elem.append(["img", {"src": tree_img, "style": "width:100%;"}])
+        tree_imgs_element.append(elem)
+    body.append(tree_imgs_element)
 
     return render([
         "html",
