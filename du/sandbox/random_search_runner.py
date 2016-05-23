@@ -181,6 +181,22 @@ class ChoiceGenerator(BaseGenerator):
         return generated
 
 
+class OrdinalChoiceGenerator(BaseGenerator):
+
+    def __init__(self, key, choices):
+        self.key = key
+        self.choices = choices
+        self.num_choices_ = len(choices)
+
+    def generate(self):
+        return {self.key: np.random.randint(self.num_choices_)}
+
+    def parse(self, generated):
+        idx = generated.pop(self.key)
+        generated[self.key] = self.choices[idx]
+        return generated
+
+
 class RandomHyperparametersGenerator(object):
 
     """
@@ -228,6 +244,10 @@ class RandomHyperparametersGenerator(object):
 
     def choice(self, key, choices):
         self.generators.append(ChoiceGenerator(key, choices))
+        return self
+
+    def ordinal_choice(self, key, choices):
+        self.generators.append(OrdinalChoiceGenerator(key, choices))
         return self
 
     def generate(self):
