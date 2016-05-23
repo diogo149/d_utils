@@ -93,7 +93,7 @@ def mongo_worker(mongo_url):
 def html_hyperopt_report(trials_df,
                          n_feature_importance=20,
                          n_partial_dependence1=10,
-                         n_partial_dependence2=10,
+                         n_partial_dependence2=5,
                          n_feature_summary=10,
                          summary_bins=10,
                          categorical_threshold=10,
