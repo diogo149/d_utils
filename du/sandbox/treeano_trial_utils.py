@@ -17,7 +17,8 @@ def load_previous_network(trial_name,
                           network=None,
                           load_previous_architecture=False,
                           trials_dir=None,
-                          strict=False):
+                          strict=False,
+                          name="best"):
     """
     takes in a previous trial and a network, and returns a new network
 
@@ -52,14 +53,14 @@ def load_previous_network(trial_name,
     if load_previous_architecture:
         # return previous network
         return canopy.serialization.unpickle_network(
-            tmp_trial.file_path("best_network"))
+            tmp_trial.file_path("%s_network" % name))
     else:
         assert network is not None
         # put old values into given network
         du.info("Loading previous network values: %d",
                 iteration_num)
         value_dict = du.joblib_utils.load_dir(
-            tmp_trial.file_path("best_values"))
+            tmp_trial.file_path("%s_values" % name))
 
         if strict:
             # use strictest settings because we want
