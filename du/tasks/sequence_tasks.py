@@ -1,5 +1,6 @@
 import numpy as np
 from . import reber_grammar_tasks
+from . import image_tasks
 
 
 def add_mask_from_lengths(datamap, max_length=None):
@@ -103,3 +104,45 @@ def embedded_reber_grammar_minibatch(batch_size, dtype, min_length=10):
         y[i, :lengths[i]] = np.array(outputs[i], dtype=dtype)
     lengths = np.array(lengths, dtype=dtype)
     return {"x": x, "y": y, "lengths": lengths}
+
+# ################################## mnist ##################################
+
+
+def sequential_mnist(dtype,
+                     include_valid_split=True,
+                     random_state=42,
+                     shuffle_train=True):
+    datamaps = image_tasks.mnist(dtype=dtype,
+                                 include_valid_split=include_valid_split,
+                                 random_state=random_state,
+                                 shuffle_train=shuffle_train)
+
+    def to_sequential(datamap):
+        x = datamap["x"]
+        y = datamap["y"]
+        new_x = x.reshape(x.shape[0], 28 * 28, 1)
+        return {"x": new_x, "y": y}
+
+    return map(to_sequential, datamaps)
+
+
+def sequential_permuted_mnist(dtype,
+                              include_valid_split=True,
+                              random_state=42,
+                              shuffle_train=True):
+    datamaps = image_tasks.mnist(dtype=dtype,
+                                 include_valid_split=include_valid_split,
+                                 random_state=random_state,
+                                 shuffle_train=shuffle_train)
+    order = np.arange(28 * 28)
+    rng = np.random.RandomState(seed=random_state)
+    rng.shuffle(order)
+
+    def to_sequential(datamap):
+        x = datamap["x"]
+        y = datamap["y"]
+        new_x = x.reshape(x.shape[0], 28 * 28, 1)
+        new_x = new_x[:, order]
+        return {"x": new_x, "y": y}
+
+    return map(to_sequential, datamaps)
