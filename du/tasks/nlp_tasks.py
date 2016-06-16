@@ -25,6 +25,7 @@ def _try_download_file(url, path):
 
 
 def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
+    base_dir = os.path.expanduser(base_dir)
     ptb_base = DATASETS_REPO_BASE + "penn_treebank/"
     files = ["ptb.char.%s.txt" % split
              for split in ("train", "valid", "test")]
@@ -33,7 +34,7 @@ def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
         full_file = os.path.join(base_dir, filename)
         _try_download_file(url=ptb_base + filename,
                            path=full_file)
-        with open("ptb.char.valid.txt") as f:
+        with open(full_file) as f:
             chars = f.read().strip().split(" ")
         chars_list.append(chars)
     char_set = set(char for chars in chars_list for char in chars)
