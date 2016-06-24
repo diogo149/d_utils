@@ -5,7 +5,7 @@ __description__ = "random utils"
 __uri__ = "https://github.com/diogo149/du"
 
 __author__ = "Diogo Almeida"
-__email__ = "diogo149@gmai.com"
+__email__ = "diogo149@gmail.com"
 
 __license__ = "MIT"
 __copyright__ = "Copyright (c) 2015 Diogo Almeida"
