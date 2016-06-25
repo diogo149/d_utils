@@ -44,3 +44,11 @@ def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
                                    dtype=dtype)
                           for chars in chars_list]
     return [{"x": train}, {"x": valid}, {"x": test}]
+
+
+def text8():
+    pass
+
+
+def wiki8():
+    pass
