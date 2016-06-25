@@ -1,14 +1,7 @@
-"""
-TODO
-text8
-http://mattmahoney.net/dc/text8.zip
-
-wiki8
-http://mattmahoney.net/dc/enwik8.zip
-"""
-
 import os
 import urllib
+import string
+import subprocess
 import numpy as np
 
 from .. import io_utils
@@ -80,9 +73,97 @@ def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
     return [{"x": train}, {"x": valid}, {"x": test}]
 
 
-def text8():
-    pass
+def penn_treebank_word(dtype, base_dir="~/penn_treebank_word"):
+    base_dir = os.path.expanduser(base_dir)
+    ptb_base = DATASETS_REPO_BASE + "penn_treebank/"
+    files = ["ptb.%s.txt" % split
+             for split in ("train", "valid", "test")]
+    words_list = []
+    for filename in files:
+        full_file = os.path.join(base_dir, filename)
+        _try_download_file(url=ptb_base + filename,
+                           path=full_file)
+        with open(full_file) as f:
+            words = f.read().replace("\n", "<eos>").split()
+        words_list.append(words)
+    word_set = set(word for words in words_list for word in words)
+    word2idx = {word: idx for idx, word in enumerate(word_set)}
+    assert len(word2idx) == 10000
+    train, valid, test = [np.array([word2idx[word] for word in words],
+                                   dtype=dtype)
+                          for words in words_list]
+    return [{"x": train}, {"x": valid}, {"x": test}]
 
 
-def wiki8():
-    pass
+def text8(dtype, base_dir="~/text8"):
+    base_dir = os.path.expanduser(base_dir)
+    file_path = os.path.join(base_dir, "text8")
+    if not os.path.exists(file_path):
+        zip_path = os.path.join(base_dir, "text8.zip")
+        _try_download_file(url="http://mattmahoney.net/dc/text8.zip",
+                           path=zip_path)
+        subprocess.call(["unzip", zip_path, "-d", base_dir])
+
+    with open(file_path) as f:
+        data = f.read()
+
+    num_total = int(1e8)
+    num_train = int(9e7)
+    num_valid = int(5e6)
+    num_test = int(5e6)
+
+    char2idx = {char: idx for idx, char in enumerate(" " + string.lowercase)}
+
+    assert len(data) == num_total
+    assert num_train + num_valid + num_test == num_total
+
+    train = np.zeros(num_train, dtype=dtype)
+    for idx in range(0, num_train):
+        train[idx] = char2idx[data[idx]]
+    valid = np.zeros(num_valid, dtype=dtype)
+    for idx in range(0, num_valid):
+        valid[idx] = char2idx[data[idx + num_train]]
+    test = np.zeros(num_test, dtype=dtype)
+    for idx in range(0, num_test):
+        test[idx] = char2idx[data[idx + num_train + num_valid]]
+
+    return [{"x": train}, {"x": valid}, {"x": test}]
+
+
+def enwik8(dtype, base_dir="~/enwik8"):
+    base_dir = os.path.expanduser(base_dir)
+    file_path = os.path.join(base_dir, "enwik8")
+    if not os.path.exists(file_path):
+        zip_path = os.path.join(base_dir, "enwik8.zip")
+        _try_download_file(url="http://mattmahoney.net/dc/enwik8.zip",
+                           path=zip_path)
+        subprocess.call(["unzip", zip_path, "-d", base_dir])
+
+    with open(file_path) as f:
+        data = f.read()
+
+    num_total = int(1e8)
+    num_train = int(9e7)
+    num_valid = int(5e6)
+    num_test = int(5e6)
+
+    byte2idx = {}
+
+    assert len(data) == num_total
+    assert num_train + num_valid + num_test == num_total
+
+    train = np.zeros(num_train, dtype=dtype)
+    for idx in range(0, num_train):
+        byte = data[idx]
+        if byte not in byte2idx:
+            byte2idx[byte] = len(byte2idx)
+        train[idx] = byte2idx[byte]
+    assert len(byte2idx) == 205
+    valid = np.zeros(num_valid, dtype=dtype)
+    for idx in range(0, num_valid):
+        valid[idx] = byte2idx[data[idx + num_train]]
+    test = np.zeros(num_test, dtype=dtype)
+    for idx in range(0, num_test):
+        test[idx] = byte2idx[data[idx + num_train + num_valid]]
+
+    return [{"x": train}, {"x": valid}, {"x": test}]
