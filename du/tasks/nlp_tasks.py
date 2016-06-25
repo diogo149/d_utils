@@ -24,6 +24,40 @@ def _try_download_file(url, path):
         urllib.urlretrieve(url, path)
 
 
+def one_hot_x(datamap, vocabulary_size, dtype):
+    x = datamap["x"]
+    new_x = np.zeros((len(x), vocabulary_size), dtype=dtype)
+    new_x[np.arange(len(x)), x] = 1
+    return {"x": new_x}
+
+
+def batch_and_split(datamap, batch_size, sequence_length):
+    total_length, = set(map(len, datamap.values()))
+    assert total_length % batch_size == 0
+    split_length = total_length / batch_size
+    split_datamap = {k: v.reshape(batch_size, split_length, *v.shape[1:])
+                     for k, v in datamap.items()}
+    batches = []
+    for idx in range(int(np.ceil(split_length / float(sequence_length)))):
+        idxs = slice(idx * sequence_length, (idx + 1) * sequence_length)
+        batches.append({k: v[:, idxs] for k, v in split_datamap.items()})
+    return batches
+
+
+def add_unsupervised_sequential_y(datamap):
+    assert {"x"} == set(datamap.keys())
+    x = datamap["x"]
+    new_x = x[:-1]
+    new_y = x[1:]
+    return {"x": new_x, "y": new_y}
+
+
+def truncate_to_batch_size(datamap, batch_size):
+    total_length, = set(map(len, datamap.values()))
+    new_length = (total_length // batch_size) * batch_size
+    return {k: v[:new_length] for k, v in datamap.items()}
+
+
 def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
     base_dir = os.path.expanduser(base_dir)
     ptb_base = DATASETS_REPO_BASE + "penn_treebank/"
