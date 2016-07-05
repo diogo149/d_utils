@@ -19,6 +19,7 @@ def random_affine_fn(shape,
                      horizontal_flip=0,
                      rng=None,
                      output_shape=None,
+                     mutually_exlusive=None,
                      **kwargs):
     """
     returns a function from an image to a new image perturbed by random
@@ -41,6 +42,10 @@ def random_affine_fn(shape,
     takes in either a pair of values to use as a range for both axes,
     or a pair of pairs of values to use as a range for each axis
     (random uniform)
+
+    mutually_exlusive:
+    if not None, then this is a set of transformations, of which only
+    1 is chosen and kept
     """
     # parameter used to be a boolean for 50% probability
     assert horizontal_flip is not True
@@ -77,6 +82,13 @@ def random_affine_fn(shape,
 
     kwargs["horizontal_flip"] = rng.uniform() < horizontal_flip
     kwargs["vertical_flip"] = rng.uniform() < vertical_flip
+
+    if mutually_exlusive is not None:
+        chosen = rng.choice(mutually_exlusive)
+        assert chosen in kwargs
+        for not_chosen in mutually_exlusive:
+            if chosen != not_chosen:
+                kwargs.pop(not_chosen)
 
     return preprocessing.image2d.affine_transform_fn(
         shape=shape,
