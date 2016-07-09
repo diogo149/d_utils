@@ -1,20 +1,9 @@
 import os
-import urllib
 import string
 import subprocess
 import numpy as np
 
-from .. import io_utils
-
-DATASETS_REPO_BASE = "https://raw.githubusercontent.com/diogo149/datasets/master/"
-
-
-def _try_download_file(url, path):
-    if not os.path.isfile(path):
-        base_dir = os.path.dirname(path)
-        io_utils.guarantee_dir_exists(base_dir)
-        print("Downloading {} to {}".format(url, path))
-        urllib.urlretrieve(url, path)
+from . import tasks_utils
 
 
 def one_hot_x(datamap, vocabulary_size, dtype):
@@ -53,14 +42,14 @@ def truncate_to_batch_size(datamap, batch_size):
 
 def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
     base_dir = os.path.expanduser(base_dir)
-    ptb_base = DATASETS_REPO_BASE + "penn_treebank/"
+    ptb_base = tasks_utils.DATASETS_REPO_BASE + "penn_treebank/"
     files = ["ptb.char.%s.txt" % split
              for split in ("train", "valid", "test")]
     chars_list = []
     for filename in files:
         full_file = os.path.join(base_dir, filename)
-        _try_download_file(url=ptb_base + filename,
-                           path=full_file)
+        tasks_utils.try_download_file(url=ptb_base + filename,
+                                      path=full_file)
         with open(full_file) as f:
             chars = f.read().strip().split(" ")
         chars_list.append(chars)
@@ -75,14 +64,14 @@ def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
 
 def penn_treebank_word(dtype, base_dir="~/penn_treebank_word"):
     base_dir = os.path.expanduser(base_dir)
-    ptb_base = DATASETS_REPO_BASE + "penn_treebank/"
+    ptb_base = tasks_utils.DATASETS_REPO_BASE + "penn_treebank/"
     files = ["ptb.%s.txt" % split
              for split in ("train", "valid", "test")]
     words_list = []
     for filename in files:
         full_file = os.path.join(base_dir, filename)
-        _try_download_file(url=ptb_base + filename,
-                           path=full_file)
+        tasks_utils.try_download_file(url=ptb_base + filename,
+                                      path=full_file)
         with open(full_file) as f:
             words = f.read().replace("\n", "<eos>").split()
         words_list.append(words)
@@ -100,8 +89,8 @@ def text8(dtype, base_dir="~/text8"):
     file_path = os.path.join(base_dir, "text8")
     if not os.path.exists(file_path):
         zip_path = os.path.join(base_dir, "text8.zip")
-        _try_download_file(url="http://mattmahoney.net/dc/text8.zip",
-                           path=zip_path)
+        tasks_utils.try_download_file(url="http://mattmahoney.net/dc/text8.zip",
+                                      path=zip_path)
         subprocess.call(["unzip", zip_path, "-d", base_dir])
 
     with open(file_path) as f:
@@ -135,8 +124,8 @@ def enwik8(dtype, base_dir="~/enwik8"):
     file_path = os.path.join(base_dir, "enwik8")
     if not os.path.exists(file_path):
         zip_path = os.path.join(base_dir, "enwik8.zip")
-        _try_download_file(url="http://mattmahoney.net/dc/enwik8.zip",
-                           path=zip_path)
+        tasks_utils.try_download_file(url="http://mattmahoney.net/dc/enwik8.zip",
+                                      path=zip_path)
         subprocess.call(["unzip", zip_path, "-d", base_dir])
 
     with open(file_path) as f:
