@@ -181,7 +181,7 @@ class ChoiceGenerator(BaseGenerator):
         for i, k in enumerate(self.keys_):
             val = generated.pop(k)
             if val:
-                generated[k] = self.choices[i]
+                generated[self.key] = self.choices[i]
         return generated
 
 
@@ -212,7 +212,7 @@ class RandomHyperparametersGenerator(object):
     """
 
     def __init__(self):
-        self.generators = {}
+        self.generators = []
         self.active_fns = {}
 
     def set_when_active(self, key, active_fn):
