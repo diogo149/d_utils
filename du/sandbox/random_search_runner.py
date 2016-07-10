@@ -55,7 +55,11 @@ def write_html_report(jsonl_filename,
 
     assert "loss" not in hyperparameters
     for row in data:
-        loss = row["targets"][target]
+        try:
+            # target can be a function
+            loss = target(row["targets"])
+        except TypeError:
+            loss = row["targets"][target]
         if goal == "maximize":
             loss = -loss
         df_data["loss"].append(loss)
