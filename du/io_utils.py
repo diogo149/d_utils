@@ -318,7 +318,13 @@ def json_dump(obj, filename, **kwargs):
 
 json_loads = json.loads
 
-json_load = json.load
+
+def json_load(file_or_filename, **kwargs):
+    if isinstance(file_or_filename, six.string_types):
+        with open(file_or_filename) as f:
+            return json_load(f, **kwargs)
+    else:
+        return json.load(file_or_filename, **kwargs)
 
 # ################################## jsonl ##################################
 
