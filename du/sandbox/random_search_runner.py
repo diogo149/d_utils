@@ -1,5 +1,6 @@
 import collections
 import functools
+import six
 import numpy as np
 import pandas as pd
 import du
@@ -33,7 +34,7 @@ def repeat_random_search(jsonl_filename,
     return results
 
 
-def write_html_report(jsonl_filename,
+def write_html_report(data_or_jsonl_filename,
                       html_filename,
                       hyperparameters=None,
                       target="loss",
@@ -43,7 +44,10 @@ def write_html_report(jsonl_filename,
     hyperparameters:
     if None, use all of them
     """
-    data = du.io_utils.jsonl_load(jsonl_filename)
+    if isinstance(data_or_jsonl_filename, six.string_types):
+        data = du.io_utils.jsonl_load(data_or_jsonl_filename)
+    else:
+        data = data_or_jsonl_filename
 
     df_data = collections.defaultdict(list)
 
