@@ -59,6 +59,7 @@ def penn_treebank_char(dtype, base_dir="~/penn_treebank_char"):
     train, valid, test = [np.array([char2idx[char] for char in chars],
                                    dtype=dtype)
                           for chars in chars_list]
+    # train size: 5017481
     return [{"x": train}, {"x": valid}, {"x": test}]
 
 
