@@ -35,7 +35,7 @@ def repeat_random_search(jsonl_filename,
 
 
 def write_html_report(data_or_jsonl_filename,
-                      html_filename,
+                      html_filename=None,
                       hyperparameters=None,
                       target="loss",
                       goal="minimize",
@@ -72,9 +72,10 @@ def write_html_report(data_or_jsonl_filename,
 
     df = pd.DataFrame(df_data)
 
-    html = hyperopt_utils.html_hyperopt_report(trials_df=df, **kwargs)
-    with open(html_filename, "w") as f:
-        f.write(html)
+    if html_filename is not None:
+        html = hyperopt_utils.html_hyperopt_report(trials_df=df, **kwargs)
+        with open(html_filename, "w") as f:
+            f.write(html)
 
     return df
 
