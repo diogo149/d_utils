@@ -39,6 +39,8 @@ def str_to_interpolation(s):
         return cv2.INTER_CUBIC
     elif s == "area":
         return cv2.INTER_AREA
+    elif s == "nearest":
+        return cv2.INTER_NEAREST
     else:
         raise ValueError
 
