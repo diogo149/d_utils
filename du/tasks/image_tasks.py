@@ -125,7 +125,11 @@ def svhn(dtype,
 # ############################### CIFAR-10/100 ###############################
 
 
-def cifar10(dtype, random_state=42, base_dir="~/cifar10", include_valid_split=True):
+def cifar10(x_dtype="float32",
+            y_dtype="int32",
+            random_state=42,
+            base_dir="~/cifar10",
+            include_valid_split=True):
     """
     x is in [0, 1] with shape (b, 3, 32, 32) and dtype floatX
     y is an int32 vector in range(10)
@@ -142,8 +146,8 @@ def cifar10(dtype, random_state=42, base_dir="~/cifar10", include_valid_split=Tr
     def read_batch(filename):
         with open(filename, 'rb') as f:
             raw = pickle.load(f)
-        x = raw["data"].reshape(-1, 3, 32, 32).astype(dtype) / 255.0
-        y = np.array(raw["labels"], dtype="int32")
+        x = raw["data"].reshape(-1, 3, 32, 32).astype(x_dtype) / 255.0
+        y = np.array(raw["labels"], dtype=y_dtype)
         return x, y
 
     # read test data
