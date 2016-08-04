@@ -7,6 +7,11 @@ import shutil
 import csv
 import sys
 
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 import six
 import joblib
 import yaml
@@ -284,6 +289,18 @@ class Tee(object):
             self._stdout.flush()
         if self.tee_stderr_:
             self._stderr.flush()
+
+# ################################## pickle ##################################
+
+
+def pickle_dump(obj, filename):
+    with open(filename, "wb") as f:
+        pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def pickle_load(filename):
+    with open(filename, "rb") as f:
+        return pickle.load(f)
 
 
 # ################################### json ###################################
