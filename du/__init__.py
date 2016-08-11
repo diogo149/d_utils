@@ -24,18 +24,19 @@ theano_utils
 from .utils import *
 from .timer_utils import simple_timer, timer, timed, LoopTimer
 
-import data_augmentation
-import dataset
-import io_utils
-import joblib_utils
-import numpy_utils
-import parallel
-import performance_utils
-import preprocessing
-import random_utils
-import string_utils
-import tasks
-import walk_utils
-import trial
-import unsupervised
-import yaml_db
+from . import data_augmentation
+from . import dataset
+from . import io_utils
+from . import joblib_utils
+from . import numpy_utils
+from . import parallel
+from . import performance_utils
+from . import preprocessing
+from . import random_utils
+from . import string_utils
+from . import tasks
+from . import walk_utils
+from . import trial
+from . import unsupervised
+from . import yaml_db
+from . import templates
