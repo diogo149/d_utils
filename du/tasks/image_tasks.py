@@ -20,6 +20,17 @@ def _shuffle_batch_axis(datamap, random_state):
     return {k: v[order] for k, v in datamap.items()}
 
 
+def subtract_per_pixel_mean(datamaps):
+    # assume first is train
+    pixel_mean = datamaps[0]["x"].mean(axis=0, keepdims=True)
+    new_datamaps = []
+    for dm in datamaps:
+        dm = dict(dm)  # make a copy
+        dm["x"] = dm["x"] - pixel_mean
+        new_datamaps.append(dm)
+    return new_datamaps
+
+
 # ################################## mnist ##################################
 
 
@@ -123,6 +134,31 @@ def svhn(dtype,
     return train, test
 
 # ############################### CIFAR-10/100 ###############################
+
+
+def gen_standard_cifar10_augmentation(datamap):
+    x = datamap["x"]
+    y = datamap["y"]
+    # create mirrored images
+    x = np.concatenate((x, x[..., ::-1]))
+    y = np.concatenate((y, y))
+    # allocate ndarray like x (before padding)
+    x_epoch = np.zeros_like(x)
+    # pad feature arrays with 4 pixels on each side
+    x = np.pad(x, ((0, 0), (0, 0), (4, 4), (4, 4)), mode=str("constant"))
+    num_images = len(x)
+    while True:
+        # shuffle
+        indices = np.arange(num_images)
+        # random cropping of 32x32
+        np.random.shuffle(indices)
+        y_epoch = y[indices]
+        crops = np.random.random_integers(0, high=8, size=(num_images, 2))
+        for i in range(num_images):
+            idx = indices[i]
+            crop1, crop2 = crops[i]
+            x_epoch[i] = x[idx, :, crop1:crop1 + 32, crop2:crop2 + 32]
+        yield {"x": x_epoch, "y": y_epoch}
 
 
 def cifar10(x_dtype="float32",
