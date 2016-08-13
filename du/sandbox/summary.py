@@ -10,6 +10,7 @@ eg.
 >>> print s.to_org_list()
 - foo: 3
 """
+import socket
 import du
 
 
@@ -246,3 +247,19 @@ def max_gpu_memory_MB(summary, trial=None):
     else:
         # http://deeplearning.net/software/theano/tutorial/profiling.html
         du.error("Will not be able to log GPU memory consumption")
+
+
+@Summary.save_recipe()
+def trial_info(summary, trial=None):
+    summary.add("trial", value="%s:%s:%d" % (socket.gethostname(),
+                                             trial.trial_name,
+                                             trial.iteration_num))
+
+
+@Summary.save_recipe()
+def add_finals(summary, field_names, **kwargs):
+    for field_name in field_names:
+        summary.add("final_%s" % field_name,
+                    in_keys=[field_name],
+                    how="last",
+                    **kwargs)
