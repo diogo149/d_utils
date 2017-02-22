@@ -4,20 +4,9 @@ import subprocess
 import numpy as np
 import scipy.io
 import sklearn.datasets
-import sklearn.cross_validation
+import sklearn.model_selection
 
 from . import tasks_utils
-
-
-def _shuffle_batch_axis(datamap, random_state):
-    lens = map(len, datamap.values())
-    # make sure all have the same length
-    assert len(set(lens)) == 1
-
-    order = np.arange(lens[0])
-    rng = np.random.RandomState(seed=random_state)
-    rng.shuffle(order)
-    return {k: v[order] for k, v in datamap.items()}
 
 
 def subtract_per_pixel_mean(datamaps):
@@ -34,7 +23,8 @@ def subtract_per_pixel_mean(datamaps):
 # ################################## mnist ##################################
 
 
-def mnist(dtype,
+def mnist(x_dtype,
+          y_dtype,
           include_valid_split=True,
           random_state=42,
           shuffle_train=True):
@@ -44,26 +34,24 @@ def mnist(dtype,
     """
     raw = sklearn.datasets.fetch_mldata('MNIST original')
     # rescaling to [0, 1] instead of [0, 255]
-    x = raw['data'].reshape(-1, 1, 28, 28).astype(dtype) / 255.0
-    y = raw['target'].astype("int32")
+    x = raw['data'].reshape(-1, 28, 28, 1).astype(x_dtype) / 255.0
+    y = raw['target'].astype(y_dtype)
+    # NOTE: train data is initially in order of 0 through 9
+    train = {"x": x[:60000], "y": y[:60000]}
+    # NOTE: test data is in order of 0 through 9
     test = {"x": x[60000:], "y": y[60000:]}
+
+    if shuffle_train:
+        train = tasks_utils.shuffle_datamap(train, random_state=random_state)
+
     if include_valid_split:
-        # NOTE: train data is initially in order of 0 through 9
-        x1, x2, y1, y2 = sklearn.cross_validation.train_test_split(
-            x[:60000],
-            y[:60000],
+        train, valid = tasks_utils.train_test_split_datamap(
+            train,
+            test_size=10000,
             random_state=random_state,
-            test_size=10000)
-        train = {"x": x1, "y": y1}
-        valid = {"x": x2, "y": y2}
-        if shuffle_train:
-            train = _shuffle_batch_axis(train, random_state)
-        # NOTE: test data is in order of 0 through 9
+            stratify="y")
         return train, valid, test
     else:
-        train = {"x": x[:60000], "y": y[:60000]}
-        if shuffle_train:
-            train = _shuffle_batch_axis(train, random_state)
         return train, test
 
 
@@ -200,7 +188,7 @@ def cifar10(x_dtype="float32",
     y = np.concatenate(ys, axis=0)
     if include_valid_split:
         # split train and valid
-        x1, x2, y1, y2 = sklearn.cross_validation.train_test_split(
+        x1, x2, y1, y2 = sklearn.model_selection.train_test_split(
             x,
             y,
             random_state=random_state,
@@ -256,7 +244,7 @@ def cifar100(dtype,
     old_train = read_file(train_file)
     # split train and valid
     if include_valid_split:
-        train_idx, valid_idx = iter(sklearn.cross_validation.ShuffleSplit(
+        train_idx, valid_idx = iter(sklearn.model_selection.ShuffleSplit(
             len(old_train["x"]),
             n_iter=1,
             test_size=10000,
