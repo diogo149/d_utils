@@ -64,7 +64,7 @@ def cluttered_mnist(base_dir="~/cluttered_mnist"):
     path = os.path.join(base_dir, "mnist_cluttered_60x60_6distortions.npz")
     tasks_utils.try_download_file(url, path)
     data = np.load(path)
-    X_train, X_valid, X_test = [data[n].reshape((-1, 1, 60, 60))
+    X_train, X_valid, X_test = [data[n].reshape((-1, 60, 60, 1))
                                 for n in ["x_train", "x_valid", "x_test"]]
     y_train, y_valid, y_test = [np.argmax(data[n], axis=-1).astype('int32')
                                 for n in ["y_train", "y_valid", "y_test"]]
@@ -83,8 +83,9 @@ def svhn(dtype,
     """
     loads svhn data from http://ufldl.stanford.edu/housenumbers/
     """
+    # make this match cifar10 interface
+    assert False
     # TODO
-    assert not include_extras
     assert not include_extras
     base_dir = os.path.expanduser(base_dir)
 
@@ -96,7 +97,7 @@ def svhn(dtype,
         y = mat["y"]
 
         # reformat
-        x = x.transpose(3, 2, 0, 1).astype(dtype) / 255.0
+        x = x.transpose(3, 0, 1, 2).astype(dtype) / 255.0
         # TODO flag for y dtype
         y = y.ravel().astype("int32")
 
@@ -133,7 +134,7 @@ def gen_standard_cifar10_augmentation(datamap):
     # allocate ndarray like x (before padding)
     x_epoch = np.zeros_like(x)
     # pad feature arrays with 4 pixels on each side
-    x = np.pad(x, ((0, 0), (0, 0), (4, 4), (4, 4)), mode=str("constant"))
+    x = np.pad(x, ((0, 0), (4, 4), (4, 4), (0, 0)), mode=str("constant"))
     num_images = len(x)
     while True:
         # shuffle
@@ -145,18 +146,18 @@ def gen_standard_cifar10_augmentation(datamap):
         for i in range(num_images):
             idx = indices[i]
             crop1, crop2 = crops[i]
-            x_epoch[i] = x[idx, :, crop1:crop1 + 32, crop2:crop2 + 32]
+            x_epoch[i] = x[idx, crop1:crop1 + 32, crop2:crop2 + 32, :]
         yield {"x": x_epoch, "y": y_epoch}
 
 
-def cifar10(x_dtype="float32",
-            y_dtype="int32",
+def cifar10(x_dtype,
+            y_dtype,
             random_state=42,
             base_dir="~/cifar10",
             include_valid_split=True):
     """
     x is in [0, 1] with shape (b, 3, 32, 32) and dtype floatX
-    y is an int32 vector in range(10)
+    y is an int vector in range(10)
     """
     URL = "http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
     base_dir = os.path.expanduser(base_dir)
@@ -171,6 +172,8 @@ def cifar10(x_dtype="float32",
         with open(filename, 'rb') as f:
             raw = pickle.load(f)
         x = raw["data"].reshape(-1, 3, 32, 32).astype(x_dtype) / 255.0
+        # transpose into TF format
+        x = x.transpose(0, 2, 3, 1)
         y = np.array(raw["labels"], dtype=y_dtype)
         return x, y
 
@@ -184,20 +187,16 @@ def cifar10(x_dtype="float32",
         xs.append(x)
         ys.append(y)
     # combine train+valid data
-    x = np.concatenate(xs, axis=0)
-    y = np.concatenate(ys, axis=0)
+    train = {"x": np.concatenate(xs, axis=0), "y": np.concatenate(ys, axis=0)}
+
     if include_valid_split:
-        # split train and valid
-        x1, x2, y1, y2 = sklearn.model_selection.train_test_split(
-            x,
-            y,
+        train, valid = tasks_utils.train_test_split_datamap(
+            train,
+            test_size=10000,
             random_state=random_state,
-            test_size=10000)
-        train = {"x": x1, "y": y1}
-        valid = {"x": x2, "y": y2}
+            stratify="y")
         return train, valid, test
     else:
-        train = {"x": x, "y": y}
         return train, test
 
 
@@ -207,6 +206,8 @@ def cifar100(dtype,
              fine_label_key="y",
              coarse_label_key=None,
              include_valid_split=True):
+    # make this match cifar10 interface
+    assert False
     """
     x is in [0, 1] with shape (b, 3, 32, 32) and dtype floatX
     y is an int32 vector in range(100)
@@ -228,6 +229,8 @@ def cifar100(dtype,
         res = {}
 
         res["x"] = raw["data"].reshape(-1, 3, 32, 32).astype(dtype) / 255.0
+        # transpose into TF format
+        res["x"] = res["x"].transpose(0, 2, 3, 1)
 
         if fine_label_key is not None:
             res[fine_label_key] = np.array(raw["fine_labels"], dtype="int32")
@@ -241,16 +244,14 @@ def cifar100(dtype,
     # read test data
     test = read_file(test_file)
     # read train data
-    old_train = read_file(train_file)
-    # split train and valid
+    train = read_file(train_file)
+
     if include_valid_split:
-        train_idx, valid_idx = iter(sklearn.model_selection.ShuffleSplit(
-            len(old_train["x"]),
-            n_iter=1,
+        train, valid = tasks_utils.train_test_split_datamap(
+            train,
             test_size=10000,
-            random_state=random_state)).next()
-        train = {k: v[train_idx] for k, v in old_train.iteritems()}
-        valid = {k: v[valid_idx] for k, v in old_train.iteritems()}
+            random_state=random_state,
+            stratify="y")
         return train, valid, test
     else:
-        return old_train, test
+        return train, test
