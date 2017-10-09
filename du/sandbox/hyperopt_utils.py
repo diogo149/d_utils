@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import hyperopt
 
+from .. import numpy_utils
 from .. import walk_utils
 from .. import utils
 
@@ -98,7 +99,8 @@ def html_hyperopt_report(trials_df,
                          summary_bins=10,
                          categorical_threshold=10,
                          feature_importance_clf_kwargs=None,
-                         decision_tree_percentiles=(10, 20, None),
+                         decision_tree_percentiles=(10, 20),
+                         decision_tree_regressions=("cost", "rank"),
                          decision_tree_depth=4):
     """
     trials_df:
@@ -176,7 +178,7 @@ def html_hyperopt_report(trials_df,
                              rounded=True,
                              special_characters=True,
                              )
-        graph = pydot.graph_from_dot_data(dot_data.getvalue())
+        graph = pydot.graph_from_dot_data(dot_data.getvalue())[0]
         return png_to_uri(graph.create_png())
 
     # -------------
@@ -193,7 +195,7 @@ def html_hyperopt_report(trials_df,
     y[bad_idxs] = y[~bad_idxs].max() + 1
 
     # sort the data
-    sorted_trials_df = trials_df.sort(["loss"])
+    sorted_trials_df = trials_df.sort_values(["loss"])
 
     # calculate feature importance
     clf_kwargs = dict(
@@ -248,18 +250,30 @@ def html_hyperopt_report(trials_df,
     for feat_name in feature_names[:n_feature_summary]:
         if len(trials_df[feat_name].unique()) > categorical_threshold:
             # numerical feature
-            # TODO group by histogram
-            series = trials_df[feat_name]
-            bins = np.linspace(series.min(), series.max(), summary_bins)
-            groupby_df = trials_df.groupby(np.digitize(series, bins))
+            series = trials_df[feat_name].as_matrix()
+            _bins = np.percentile(series, np.linspace(0, 100, 11))
+            labels = []
+            for _value in series:
+                _upper_idx = (_value >= _bins[:-1]).sum()
+                _lower = _bins[_upper_idx - 1]
+                _upper = _bins[_upper_idx]
+                if _upper_idx == len(_bins) - 1:
+                    assert _lower <= _value <= _upper
+                    labels.append("%f <= x <= %f" % (_lower, _upper))
+                else:
+                    assert _lower <= _value < _upper
+                    labels.append("%f <= x < %f" % (_lower, _upper))
+            groupby_df = trials_df.groupby(labels)
         else:
             # categorical feature
             groupby_df = trials_df.groupby(feat_name)
         loss_median = groupby_df.median().loss
         loss_mean = groupby_df.mean().loss
         loss_std = groupby_df.std().loss
-        summary_df = pd.DataFrame([loss_median, loss_mean, loss_std],
-                                  index=["median", "mean", "std"])
+        loss_count = groupby_df.count().loss
+        summary_df = pd.DataFrame(
+            [loss_median, loss_mean, loss_std, loss_count],
+            index=["median", "mean", "std", "count"])
         trials_df.plot(feat_name, "loss", kind="scatter")
         feat_plot_uri = matplotlib_to_uri()
         feature_summaries.append(utils.AttrDict(
@@ -271,17 +285,30 @@ def html_hyperopt_report(trials_df,
     # creating decision tree
     tree_titles_and_imgs = []
     for percentile in decision_tree_percentiles:
-        if percentile is not None:
-            tmp_y = y < np.percentile(y, percentile)
-            clf = tree.DecisionTreeClassifier(max_depth=decision_tree_depth)
-            clf.fit(X, tmp_y)
-            title = "Classification tree for best %f%% of samples" % percentile
-        else:
-            clf = tree.DecisionTreeRegressor(max_depth=decision_tree_depth)
-            clf.fit(X, y)
-            title = "Regression tree for loss"
+        tmp_y = y < np.percentile(y, percentile)
+        clf = tree.DecisionTreeClassifier(max_depth=decision_tree_depth)
+        clf.fit(X, tmp_y)
+        title = "Classification tree for best %f%% of samples" % percentile
         tree_img = tree_to_uri(clf, X_df.columns)
         tree_titles_and_imgs.append((title, tree_img))
+    for _regression_task in decision_tree_regressions:
+        if _regression_task == "cost":
+            tmp_y = y
+        elif _regression_task == "rank":
+            _rank = numpy_utils.to_ranking(y)
+            # normalize to [0,1] to be less sensitive to mse
+            tmp_y = _rank.astype(float) / _rank.max()
+        else:
+            raise NotImplementedError("Unknown regression task: %s"
+                                      % _regression_task)
+        for criterion in ["mse", "mae"]:
+            clf = tree.DecisionTreeRegressor(criterion=criterion,
+                                             max_depth=decision_tree_depth)
+            clf.fit(X, tmp_y)
+            title = "Regression (%s) tree for loss: %s" % (criterion,
+                                                           _regression_task)
+            tree_img = tree_to_uri(clf, X_df.columns)
+            tree_titles_and_imgs.append((title, tree_img))
 
     # ---------------
     # creating report
