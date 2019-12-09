@@ -1,1 +1,1 @@
-from sparse_filtering import SparseFiltering
+from .sparse_filtering import SparseFiltering

@@ -26,7 +26,7 @@ DEFAULT_LOG_SETTINGS_PATH = os.path.join(LIB_PATH, "default_logging.cfg")
 with open(DEFAULT_SETTINGS_PATH) as f:
     s_raw = f.read()
     s = os.path.expandvars(s_raw)
-    config = yaml.load(s)
+    config = yaml.safe_load(s)
 
 # ####################### importing into this package #######################
 

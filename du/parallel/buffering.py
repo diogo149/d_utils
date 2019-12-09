@@ -1,4 +1,4 @@
-import Queue
+import queue
 import threading
 from .. import utils
 
@@ -20,7 +20,7 @@ class ThreadedGenerator(object):
         # the effective buffer size is one less, because the generation process
         # will generate one extra element and block until there is room in the
         # buffer.
-        self.queue_ = Queue.Queue(maxsize=self.buffer_size - 1)
+        self.queue_ = queue.Queue(maxsize=self.buffer_size - 1)
 
     def open(self):
 
