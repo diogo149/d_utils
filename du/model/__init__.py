@@ -1,5 +1,5 @@
 from .nbsvm import *
 
-from _ExtraTreesFeatureSelectionClassifier import ExtraTreesFeatureSelectionClassifier
-from _ExtraTreesRegressorEmbedding import ExtraTreesRegressorEmbedding
-from _WeightedLogisticRegression import WeightedLogisticRegression
+from ._ExtraTreesFeatureSelectionClassifier import ExtraTreesFeatureSelectionClassifier
+from ._ExtraTreesRegressorEmbedding import ExtraTreesRegressorEmbedding
+from ._WeightedLogisticRegression import WeightedLogisticRegression

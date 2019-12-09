@@ -7,9 +7,11 @@ eg.
 >>> s.update({"foo": 1})
 >>> s.update({"foo": 3})
 >>> s.update({"foo": 2})
->>> print s.to_org_list()
+>>> print(s.to_org_list())
 - foo: 3
 """
+from __future__ import print_function
+
 import socket
 import du
 

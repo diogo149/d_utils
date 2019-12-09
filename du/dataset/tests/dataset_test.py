@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import copy
 import time
 import multiprocessing
@@ -665,7 +667,7 @@ def test_dataset_dsl_promise():
     except AssertionError:
         pass
     # realizing a promise should work
-    print ds.dataset.opened_
+    print(ds.dataset.opened_)
     ds2 = du.dataset.from_list(x)
     base_ds.dataset.deliver(ds2)
     equal(ds.to_list(), [{"x": 6, "y": 2},

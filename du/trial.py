@@ -90,6 +90,7 @@ def trial_db_iteration_transaction(trial_base_path, iteration_num):
     assert isinstance(iteration_num, int)
     with trial_db_transaction(trial_base_path) as db:
         iter_maps = filter(lambda x: x["iteration_num"] == iteration_num, db)
+        iter_maps = list(iter_maps)  # eagerly evaluate
         assert len(iter_maps) <= 1
         if len(iter_maps) == 0:
             iter_map = dict(
@@ -466,13 +467,13 @@ def run_trial(*args, **kwargs):
     # friendly
     current_frame = inspect.currentframe()
     outer_frames = inspect.getouterframes(current_frame)
-    caller_frames = toolz.thread_last(
+    caller_frames = list(toolz.thread_last(
         outer_frames,
         # not the first frame
         (toolz.drop, 1),
         # not in contextlib
         (filter, lambda x: "contextlib.py" not in x[1]),
-    )
+    ))
     caller_frame_tuple = caller_frames[0]
     caller_frame = caller_frame_tuple[0]
     runner_str = inspect.getsource(inspect.getmodule(caller_frame))
