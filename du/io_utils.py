@@ -405,11 +405,13 @@ def yaml_dump_all(objs,
 
     if stream is None:
         return as_string
-    elif isinstance(stream, six.string_types):
-        with open(stream, 'w') as f:
-            f.write(as_string)
     else:
-        stream.write(as_string)
+        if isinstance(stream, six.string_types):
+            with open(stream, 'w') as f:
+                f.write(as_string)
+        else:
+            as_bytes = bytes(as_string, encoding="UTF-8")
+            stream.write(as_bytes)
 
 
 def yaml_dumps_all(objs, **kwargs):

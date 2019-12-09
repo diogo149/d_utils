@@ -63,7 +63,7 @@ cache_inspect()
 
 def get_next_iteration_num(path):
     in_path = os.listdir(path)
-    in_path_nums = filter(lambda x: re.match(r"\d+", x), in_path)
+    in_path_nums = list(filter(lambda x: re.match(r"\d+", x), in_path))
     if len(in_path_nums) == 0:
         return 1
     else:
