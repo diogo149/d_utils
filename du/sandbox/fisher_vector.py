@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 import scipy.stats
 import sklearn
+import sklearn.mixture
 
 
 class FisherVector(sklearn.base.BaseEstimator, sklearn.base.TransformerMixin):
@@ -27,15 +28,16 @@ class FisherVector(sklearn.base.BaseEstimator, sklearn.base.TransformerMixin):
         if self.descriptor == "sift":
             self.descriptor_ = cv2.SIFT()
         elif self.descriptor == "orb":
-            if hasattr(cv2, "ORB"):
+            if hasattr(cv2, "ORB_create"):
+                self.descriptor_ = cv2.ORB_create()
+            else:
                 # for cv2 version < 3
                 self.descriptor_ = cv2.ORB()
-            else:
-                self.descriptor_ = cv2.ORB_create()
         else:
             raise ValueError(self.descriptor)
-        # TODO this breaks for cv2 version >= 3
-        self.gmm_ = cv2.EM(self.n_components)
+        self.gmm_ = sklearn.mixture.GaussianMixture(
+            n_components=self.n_components
+        )
 
     def validate_imgs(self, X):
         assert len(X.shape) == 3
@@ -92,18 +94,16 @@ class FisherVector(sklearn.base.BaseEstimator, sklearn.base.TransformerMixin):
         http://docs.opencv.org/modules/ml/doc/expectation_maximization.html
         """
         self.descriptor_length = train_descriptors.shape[1]
-        self.gmm_.train(train_descriptors)
+        self.gmm_.fit(train_descriptors)
 
         # gather state
         # ---
         # matrix with shape (n_components, M)
-        means = self.gmm_.getMat("means")
+        means = self.gmm_.means_
         # a list of n_components matrices, each with shape (M, M)
-        covs = self.gmm_.getMatVector("covs")
-        # matrix of shape (1, n_components)
-        weights = self.gmm_.getMat("weights")
-        # ignore the first dim
-        weights = weights[0]
+        covs = self.gmm_.covariances_
+        # matrix of shape (n_components,)
+        weights = self.gmm_.weights_
 
         # filter gaussians with too small weights
         threshold = 1.0 / self.n_components
