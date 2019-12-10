@@ -149,7 +149,7 @@ def random_sample_generators(generators,
         idx = rng.choice(idxs, p=weights)
         gen = generators[idx]
         try:
-            yield gen.next()
+            yield next(gen)
         except StopIteration:
             generators.pop(idx)
             if weights is not None:

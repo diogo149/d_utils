@@ -235,7 +235,7 @@ def transform_rename(in_gen, key, out):
     outs = _make_keys_list(out)
 
     assert len(keys) == len(outs)
-    pairs = zip(keys, outs)
+    pairs = list(zip(keys, outs))
     for in_datamap in in_gen:
         out_datamap = {}
         out_datamap.update(in_datamap)
@@ -255,20 +255,20 @@ def transform_assoc_constant(in_gen, out, val):
 def transform_zip_assoc(in_gen, out, iterator):
     assert isinstance(out, six.string_types)  # TODO handle list case
     # can implement with zip_merge
-    for in_datamap, iter_val in itertools.izip(in_gen, iterator):
+    for in_datamap, iter_val in zip(in_gen, iterator):
         out_datamap = toolz.assoc(in_datamap, out, iter_val)
         yield out_datamap
 
 
 def transform_zip_merge(in_gen, map_iterator):
     # can implement with zip_merge_with(second, ...)
-    for in_datamap, iter_val in itertools.izip(in_gen, map_iterator):
+    for in_datamap, iter_val in zip(in_gen, map_iterator):
         out_datamap = toolz.merge(in_datamap, iter_val)
         yield out_datamap
 
 
 def transform_zip_merge_with(in_gen, fn, map_iterator):
-    for in_datamap, iter_val in itertools.izip(in_gen, map_iterator):
+    for in_datamap, iter_val in zip(in_gen, map_iterator):
         out_datamap = toolz.merge_with(fn, in_datamap, iter_val)
         yield out_datamap
 
@@ -293,7 +293,7 @@ def transform_take(in_gen, n):
 
 def transform_repeat_each(in_gen, n):
     for in_datamap in in_gen:
-        for _ in xrange(n):
+        for _ in range(n):
             yield in_datamap
 
 
@@ -323,9 +323,10 @@ def transform_chunk(in_gen, chunk_size=-1, drop_remainder=True):
 
 def transform_dechunk(in_gen):
     for in_datamap in in_gen:
-        lens = map(len, in_datamap.values())
+        values = list(in_datamap.values())
+        lens = list(map(len, values))
         assert max(lens) == min(lens), dict(max=max(lens), min=min(lens))
-        for idx in range(len(in_datamap.values()[0])):
+        for idx in range(len(values[0])):
             yield {k: v[idx] for k, v in in_datamap.items()}
 
 

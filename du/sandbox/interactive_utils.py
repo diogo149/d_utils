@@ -94,7 +94,7 @@ def interactive_image(image_fn,
 
 if __name__ == "__main__":
     import numpy as np
-    import scipy.misc
+    import scipy
 
     foo = dict(
         widget="slider",
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         upper=1.0,
     )
 
-    img = scipy.misc.lena() / 255.
+    img = scipy.misc.ascent() / 255.
 
     def image_fn(foo, bar):
         tmp = np.clip(img, foo, bar)

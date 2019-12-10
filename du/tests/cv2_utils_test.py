@@ -1,12 +1,12 @@
 import pickle
 import numpy as np
-import scipy.misc
+import scipy
 import cv2
 
 from du._test_utils import equal, numpy_almost_equal
 from du import cv2_utils
 
-lena = scipy.misc.lena() / 255.0
+img = scipy.misc.ascent() / 255.0
 affine_identity = np.eye(2, 3)
 
 
@@ -17,42 +17,42 @@ def test_wrap_01_to_uint8_conversion_serialization():
 
 
 def test_warp_affine_3d_1():
-    lena3 = lena[..., np.newaxis]
-    res = cv2_utils.warp_affine(lena3,
+    img3 = img[..., np.newaxis]
+    res = cv2_utils.warp_affine(img3,
                                 affine_identity)
-    numpy_almost_equal(res, lena3)
-    equal(res.shape, lena3.shape)
+    numpy_almost_equal(res, img3)
+    equal(res.shape, img3.shape)
 
 
 def test_warp_affine_3d_2():
-    lena3 = cv2_utils.gray_to_bgr(lena)
-    res3 = cv2_utils.warp_affine(lena3,
+    img3 = cv2_utils.gray_to_bgr(img)
+    res3 = cv2_utils.warp_affine(img3,
                                  affine_identity)
     res = cv2_utils.bgr_to_gray(res3)
-    numpy_almost_equal(res, lena)
-    equal(res3.shape, lena3.shape)
-    equal(res.shape, lena.shape)
+    numpy_almost_equal(res, img)
+    equal(res3.shape, img3.shape)
+    equal(res.shape, img.shape)
 
 
 def test_warp_affine_3d_3():
-    lena3 = cv2_utils.gray_to_rgba(lena)
-    res3 = cv2_utils.warp_affine(lena3,
+    img3 = cv2_utils.gray_to_rgba(img)
+    res3 = cv2_utils.warp_affine(img3,
                                  affine_identity)
     res = cv2_utils.rgba_to_gray(res3)
-    numpy_almost_equal(res, lena)
-    equal(res3.shape, lena3.shape)
-    equal(res.shape, lena.shape)
+    numpy_almost_equal(res, img)
+    equal(res3.shape, img3.shape)
+    equal(res.shape, img.shape)
 
 
 def test_warp_affine_dtypes():
     equal(np.uint8,
-          cv2_utils.warp_affine((255 * lena).astype(np.uint8),
+          cv2_utils.warp_affine((255 * img).astype(np.uint8),
                                 affine_identity).dtype)
     equal(np.float32,
-          cv2_utils.warp_affine(lena.astype(np.float32),
+          cv2_utils.warp_affine(img.astype(np.float32),
                                 affine_identity).dtype)
     equal(np.float64,
-          cv2_utils.warp_affine(lena.astype(np.float64),
+          cv2_utils.warp_affine(img.astype(np.float64),
                                 affine_identity).dtype)
 
 
@@ -78,8 +78,8 @@ def test_convert_color_space_fn1():
     def gray_to_bgr(as_uint8):
         return cv2.cvtColor(as_uint8, cv2.COLOR_GRAY2BGR)
 
-    np.testing.assert_equal(gray_to_bgr(lena),
-                            cv2_utils.gray_to_bgr(lena))
+    np.testing.assert_equal(gray_to_bgr(img),
+                            cv2_utils.gray_to_bgr(img))
 
 
 def test_convert_color_space_fn2():
@@ -94,5 +94,5 @@ def test_convert_color_space_fn2():
 
 
 def test_convert_color_space():
-    np.testing.assert_equal(cv2_utils.convert_color_space(lena, "GRAY", "BGR"),
-                            cv2_utils.gray_to_bgr(lena))
+    np.testing.assert_equal(cv2_utils.convert_color_space(img, "GRAY", "BGR"),
+                            cv2_utils.gray_to_bgr(img))

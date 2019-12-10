@@ -170,10 +170,7 @@ def timed(func, **overrides):
     """
     Times the decorated function.
     """
-    if hasattr(func, "func_name"):
-        key = "Function[%s]" % func.func_name
-    else:
-        key = "Function[%s]" % func
+    key = "Function[%s]" % func.__name__
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):

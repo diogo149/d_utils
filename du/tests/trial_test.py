@@ -33,7 +33,7 @@ def test_trial_exception():
                 bar = trial.module("bar").Bar(foo)
                 bar.run()
         except ValueError as e:
-            assert e.message == "foobar", e
+            assert str(e) == "foobar", e
             assert bar.bleh == 3
         else:
             assert False

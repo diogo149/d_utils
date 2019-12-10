@@ -168,7 +168,7 @@ def _convert_color_space_fn(in_space, out_space):
 def convert_color_space(img, in_space, out_space):
     """
     example:
-    convert_color_space(lena, "GRAY", "BGR")
+    convert_color_space(img, "GRAY", "BGR")
     """
     return _convert_color_space_fn(in_space, out_space)(img)
 

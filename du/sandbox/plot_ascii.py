@@ -34,17 +34,17 @@ def plot_ascii(arr, scale="auto", abs_val=True, epsilon=1e-8, **printoptions):
         return color_start + chars[step] + color_end
 
     with du.numpy_utils.printoptions(**printoptions):
-        print np.array2string(
+        print(np.array2string(
             arr,
             formatter={'float_kind': lambda x: visual(x)},
             max_line_width=10000
-        )
+        ))
 
 if __name__ == "__main__":
-    import scipy.misc
-    lena = scipy.misc.lena()
-    lena_x8 = lena[::8, ::8] + 0.0
-    plot_ascii(lena_x8, threshold=100 * 100)
-    lena_x8 -= lena_x8.mean()
-    lena_x8 /= lena_x8.std()
-    plot_ascii(lena_x8, threshold=100 * 100)
+    import scipy
+    img = scipy.misc.ascent()
+    img_x8 = img[::8, ::8] + 0.0
+    plot_ascii(img_x8, threshold=100 * 100)
+    img_x8 -= img_x8.mean()
+    img_x8 /= img_x8.std()
+    plot_ascii(img_x8, threshold=100 * 100)

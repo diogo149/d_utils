@@ -17,6 +17,7 @@ dicom_utils
 image_processing
 model
 theano_utils
+torch_utils
 """.split()
 
 # this needs to happen before the other imports

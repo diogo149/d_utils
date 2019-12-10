@@ -451,10 +451,10 @@ def test_dataset_dsl_chunk2():
     xs = [1, 2, 3, 4, 5]
     ds = du.dataset.from_list([dict(x=x) for x in xs])
     ds2 = ds.chunk(chunk_size=2).dechunk()
-    equal(map(lambda x: x["x"], ds2.to_list()),
+    equal([i["x"] for i in ds2.to_list()],
           [1, 2, 3, 4])
     ds2 = ds.chunk(chunk_size=2, drop_remainder=False).dechunk()
-    equal(map(lambda x: x["x"], ds2.to_list()),
+    equal([i["x"] for i in ds2.to_list()],
           [1, 2, 3, 4, 5])
 
 
@@ -695,6 +695,7 @@ def slow_computation(x, delay=None):
         du.info("Start sleeping")
         time.sleep(delay)
         du.info("Done sleeping")
+    x = dict(x)  # make a copy
     x["x"] *= 42
     x["y"] *= 2
     return x
@@ -714,26 +715,26 @@ def test_dataset_dsl_to_ther_process():
     ).to_other_process()
     with assert_time(delay * 2, delay * 2.5):
         with ds3 as g:
-            equal(list(g), map(slow_computation, x))
+            equal(list(g), list(map(slow_computation, x)))
     with ds3 as g:
         # other process should be computing while this process waits
         time.sleep(delay * 2.5)
         with assert_time(0, delay * 0.2):
-            equal(list(g), map(slow_computation, x))
+            equal(list(g), list(map(slow_computation, x)))
 
 
 @du._test_utils.slow
 def test_dataset_dsl_pmapcat():
-    delay = 1
+    delay = 2.0
     x = sample_data1()
     ds2 = du.dataset.from_list(x)
     ds3 = ds2.pmapcat(slow_computation_list,
                       backend="joblib",
                       joblib_n_jobs=2,
                       kwargs=dict(delay=delay))
-    with assert_time(delay, delay * 1.5):
+    with assert_time(delay, delay * 1.8):
         with ds3 as g:
-            equal(list(g), map(slow_computation, x))
+            equal(list(g), list(map(slow_computation, x)))
     pool = multiprocessing.Pool(processes=2)
     try:
         # with map
@@ -744,7 +745,7 @@ def test_dataset_dsl_pmapcat():
                           kwargs=dict(delay=delay))
         with assert_time(delay, delay * 1.5):
             with ds4 as g:
-                equal(list(g), map(slow_computation, x))
+                equal(list(g), list(map(slow_computation, x)))
         # with imap
         ds4 = ds2.pmapcat(slow_computation_list,
                           backend="pool",
@@ -753,7 +754,7 @@ def test_dataset_dsl_pmapcat():
                           kwargs=dict(delay=delay))
         with assert_time(delay, delay * 1.5):
             with ds4 as g:
-                equal(list(g), map(slow_computation, x))
+                equal(list(g), list(map(slow_computation, x)))
     finally:
         pool.close()
 
@@ -771,4 +772,4 @@ def test_dataset_dsl_threaded_reader():
             du.info("Sleeping")
             time.sleep(delay)
             du.info("Awake")
-            equal(g.next(), slow_computation(x[0]))
+            equal(next(g), slow_computation(x[0]))

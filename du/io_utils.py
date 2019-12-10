@@ -199,7 +199,7 @@ def mkdtemp(try_shm=True):
 
     # try using shared memory
     if try_shm:
-        shm = joblib.pool.SYSTEM_SHARED_MEM_FS
+        shm = joblib._memmapping_reducer.SYSTEM_SHARED_MEM_FS
         if os.path.exists(shm):
             template = ("Using shared memory: %s may have to"
                         " be manually cleaned")

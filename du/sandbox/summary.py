@@ -115,7 +115,7 @@ class Summary(object):
 
         def decorator(func):
             if name is None:
-                name_ = func.func_name
+                name_ = func.__name__
             else:
                 name_ = name
             assert name_ not in Summary.RECIPES

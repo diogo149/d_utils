@@ -1,12 +1,12 @@
 import numpy as np
-import scipy.misc
+import scipy
 from du.preprocessing.image import (get_block_with_center_and_shape,
                                     strided_downsample,
                                     resize_antialias)
 from du._test_utils import numpy_equal, numpy_almost_equal, equal, raises
 
-lena_raw = scipy.misc.lena()
-lena = lena_raw / 255.0
+img_raw = scipy.misc.ascent()
+img = img_raw / 255.0
 
 
 def test_get_block_with_center_and_shape_1():
@@ -112,33 +112,33 @@ def test_strided_downsample():
 @raises(Exception)
 def test_resize_antialias1():
     # doesn't work for int
-    resize_antialias(lena_raw, lena_raw.shape)
+    resize_antialias(img_raw, img_raw.shape)
 
 
 def test_resize_antialias2():
-    numpy_almost_equal(resize_antialias(lena, lena.shape),
-                       lena)
+    numpy_almost_equal(resize_antialias(img, img.shape),
+                       img)
 
 
 def test_resize_antialias3():
     # works for float32
-    numpy_almost_equal(resize_antialias(lena.astype(np.float32), lena.shape),
-                       lena)
+    numpy_almost_equal(resize_antialias(img.astype(np.float32), img.shape),
+                       img)
 
 
 def test_resize_antialias4():
     # works for large values
-    numpy_almost_equal(resize_antialias(lena * 1000, lena.shape) / 1000,
-                       lena)
+    numpy_almost_equal(resize_antialias(img * 1000, img.shape) / 1000,
+                       img)
 
 
 def test_resize_antialias5():
     # works for negative values
-    numpy_almost_equal(resize_antialias(lena * -1000, lena.shape) / -1000,
-                       lena)
+    numpy_almost_equal(resize_antialias(img * -1000, img.shape) / -1000,
+                       img)
 
 
 def test_resize_antialias6():
     # can resize then transform and results in the same value
-    numpy_almost_equal(resize_antialias(lena * -1000, (50, 50)) / -1000,
-                       resize_antialias(lena, (50, 50)))
+    numpy_almost_equal(resize_antialias(img * -1000, (50, 50)) / -1000,
+                       resize_antialias(img, (50, 50)))

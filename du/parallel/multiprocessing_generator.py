@@ -88,7 +88,7 @@ class _MultiprocessingGenerator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         while True:
             files = self.queue.get()
             if files is None:
@@ -137,8 +137,8 @@ class DummyGenerator(object):
     def __iter__(self):
         return self
 
-    def next(self):
-        return self.gen_.next()
+    def __next__(self):
+        return next(self.gen_)
 
     def __exit__(self, type, value, tb):
         return False
