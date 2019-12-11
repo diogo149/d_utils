@@ -64,3 +64,8 @@ def test_timed():
         return 7
 
     equal(foo(), 7)
+
+def test_timer_promise():
+    with du.timer("foo") as t:
+        assert len(t) == 0
+    assert len(t) == 1

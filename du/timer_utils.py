@@ -105,6 +105,8 @@ class TimerState(object):
                                  log_format=settings.log_format,
                                  duration=duration)
 
+        return duration
+
     def mean_time(self, key):
         entry = self.state_[key]
         return entry.decayed_total / entry.decayed_count
@@ -156,13 +158,15 @@ def simple_timer(key):
 def timer(key, timer=None, **overrides):
     if timer is None:
         timer = DEFAULT_TIMER
+    time_promise = []
     start_time = time.time()
     try:
-        yield
+        yield time_promise
     finally:
-        timer.save_time(key,
-                        start_time=start_time,
-                        overrides=overrides)
+        duration = timer.save_time(key,
+                                   start_time=start_time,
+                                   overrides=overrides)
+        time_promise.append(duration)
 
 
 @toolz.curry
