@@ -12,7 +12,7 @@ def save_model(trial, name, model):
     with du.timer("save model (%s) for %s:%d" %
                   (name, trial.trial_name, trial.iteration_num)):
         torch.save(model.state_dict(),
-                   trial.file_path("model_%s.pth" % args.name))
+                   trial.file_path("model_%s.pth" % name))
 
 
 def accuracy(output, target, topk=(1,)):
