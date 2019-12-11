@@ -1,6 +1,6 @@
 import os
 import itertools
-import StringIO
+import io
 import urllib
 import base64
 import numpy as np
@@ -157,7 +157,7 @@ def html_hyperopt_report(trials_df,
         if fig is None:
             fig = plt.gcf()
 
-        imgdata = StringIO.StringIO()
+        imgdata = io.BytesIO()
         fig.savefig(imgdata, format='png')
         imgdata.seek(0)  # rewind the data
 
@@ -167,7 +167,7 @@ def html_hyperopt_report(trials_df,
         """
         converts a decision tree into image as a b64 encoded uri
         """
-        dot_data = StringIO.StringIO()
+        dot_data = io.BytesIO()
         tree.export_graphviz(clf,
                              out_file=dot_data,
                              # map to str to avoid unicode issues

@@ -12,5 +12,6 @@ from .dsl import (DatasetDSL,
                  from_joblib_dir,
                  promise,
                  multi_dataset)
-# import extras
-# import patterns
+
+from . import extras
+from . import patterns

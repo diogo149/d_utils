@@ -29,8 +29,8 @@ def test_trial_exception():
                     snippets=[["foofoo", in_path("trial", "foo.py")],
                               ["bar", in_path("trial", "bar.py")]]
             ) as trial:
-                foo = trial.module("foofoo")
-                bar = trial.module("bar").Bar(foo)
+                foo = trial.load_module("foofoo")
+                bar = trial.load_module("bar").Bar(foo)
                 bar.run()
         except ValueError as e:
             assert str(e) == "foobar", e
@@ -183,6 +183,7 @@ def test_run_trial_function_args_kwargs():
     equal(state, [True])
 
 
+@du._test_utils.slow
 def test_run_trial_race_condition():
     template = """
 import time
@@ -197,10 +198,8 @@ with du.trial.run_trial("thisisatest"):
                 f.write(template)
             with open("tmp.py") as f:
                 assert f.read() == template
-            os.system("python tmp.py &")
-            time.sleep(1)
+            os.system("python tmp.py")
             with open("tmp.py", "w") as f:
                 f.write("FOO")
-            time.sleep(2)
             with open("_trials_dir_/thisisatest/1/src/trial_runner.py") as f:
                 assert f.read() == template

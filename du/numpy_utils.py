@@ -28,7 +28,7 @@ def expand_dim(arr, target, axis=0, fill_value=0.0):
     to_fill = constant_value_array(fill_value, shape, arr.dtype)
     indices = [slice(0, original_size,) if i == axis else slice(None)
                for i in range(len(shape))]
-    to_fill[indices] = arr
+    to_fill[tuple(indices)] = arr
     return to_fill
 
 
@@ -64,7 +64,7 @@ def memmap_concatenate(filename, arr_list, axis=0):
     for arr in arr_list:
         end_idx = start_idx + arr.shape[axis]
         slices[axis] = slice(start_idx, end_idx)
-        tmp[slices] = arr[:]
+        tmp[tuple(slices)] = arr[:]
         start_idx = end_idx
 
     return tmp

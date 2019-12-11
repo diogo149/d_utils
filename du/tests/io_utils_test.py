@@ -91,7 +91,7 @@ def test_atomically_writable_file():
             with du.io_utils.atomically_writable_file(
                     filename,
                     force_overwrite=True) as f:
-                f.write(msg)
+                f.write(bytes(msg, "UTF-8"))
                 # file should still be empty
                 assert read_file() == ""
             # file should have content now

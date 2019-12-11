@@ -175,8 +175,8 @@ def strided_downsample(data, downsample_factors, offsets=0):
         downsample_factors = (downsample_factors,) * len(data.shape)
     if isinstance(offsets, int):
         offsets = (offsets,) * len(data.shape)
-    return data[[slice(offset, None, stride)
-                 for offset, stride in zip(offsets, downsample_factors)]]
+    return data[tuple([slice(offset, None, stride)
+                       for offset, stride in zip(offsets, downsample_factors)])]
 
 
 def resize_antialias(img, shape):

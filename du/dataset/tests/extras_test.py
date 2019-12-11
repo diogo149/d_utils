@@ -10,7 +10,7 @@ def sample_data1():
 
 
 def test_validation_split():
-    xs = [1, 2, 3, 1, 2, 3, 2, 3, 2]
+    xs = [1, 2, 3, 1, 2, 3, 2, 3, 2, 1, 5]
     data = [dict(x=x) for x in xs]
     ds = du.dataset.from_list(data).filter(
         key="x",
@@ -19,4 +19,4 @@ def test_validation_split():
             is_validation_set=True,
         ))
     eq_(du.toolz.frequencies(map(lambda x: x["x"], ds.to_list())),
-        {1: 2, 2: 4})
+        {2: 4, 5: 1})

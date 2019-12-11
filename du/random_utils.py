@@ -61,5 +61,5 @@ def anything_to_random_state(thing, salt=0):
 def rand_alnum(length):
     # http://stackoverflow.com/questions/2257441/random-string-generation-with-upper-case-letters-and-digits-in-python/23728630#23728630
     return ''.join(random.SystemRandom().choice(
-        string.uppercase + string.digits + string.lowercase
-    ) for _ in xrange(length))
+        string.ascii_uppercase + string.digits + string.ascii_lowercase
+    ) for _ in range(length))

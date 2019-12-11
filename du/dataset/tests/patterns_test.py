@@ -26,7 +26,7 @@ def test_papply():
         eq_(set(l), set(range(processes)))
         # there should be an equal-ish distribution of work:
         eq_(du.toolz.frequencies(l),
-            du.toolz.frequencies((range(processes) * 100)[:100]))
+            du.toolz.frequencies((list(range(processes)) * 100)[:100]))
 
 
 def test_subdataset_apply():

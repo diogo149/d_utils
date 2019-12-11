@@ -49,6 +49,6 @@ def test_mp_generator_exception():
             for _ in g:
                 pass
     except Exception as e:
-        assert e.message == "this exception should happen", e.message
+        assert str(e) == "this exception should happen", str(e)
     else:
         assert False, "Exception should be thrown"
