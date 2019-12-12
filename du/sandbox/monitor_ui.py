@@ -2,7 +2,7 @@
 UI for monitoring data
 
 features
-- easy setup (simply run `python -m SimpleHTTPServer` in the directory)
+- easy setup (simply run `python -m http.server` in the directory)
 - live monitoring (before all the data is done)
 - customizable with data
   - eg. linear/log scale, rolling mean window
