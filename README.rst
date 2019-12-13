@@ -13,6 +13,7 @@ dependencies
   * six
   * joblib
   * PyYAML
+  * setproctitle
   
 * optional
 

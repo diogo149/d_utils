@@ -41,6 +41,7 @@ import contextlib
 from collections import defaultdict
 
 import six
+import setproctitle
 
 from . import utils, random_utils, io_utils, yaml_db
 from .utils import toolz
@@ -422,6 +423,8 @@ def _run_trial_internal(trial_name,
                       % (trial_name, iteration_num, os.getpid()))
 
     try:
+        proc_title = setproctitle.getproctitle()
+        setproctitle.setproctitle("%s:%d" % (trial_name, iteration_num))
         with random_utils.seed_random(random_seed):
             with io_utils.temporary_directory(tmp_path):
                 with temporarily_add_file_logger_to(log_path, loggers):
@@ -450,6 +453,7 @@ def _run_trial_internal(trial_name,
             end_date=str(datetime.datetime.now())
         ),
             params_path)
+        setproctitle.setproctitle(proc_title)
 
 
 def run_trial(*args, **kwargs):
