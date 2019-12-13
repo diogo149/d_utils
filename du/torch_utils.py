@@ -80,3 +80,13 @@ def cross_entropy_loss(logits, probs, axis=-1, reduction="mean"):
         return tmp.mean()
     else:
         raise ValueError
+
+
+def label_smoothing(targets, epsilon, num_classes=-1):
+    if targets.ndim == 1 and targets.dtype == torch.int64:
+        targets = F.one_hot(targets, num_classes=num_classes).float()
+    num_classes = targets.shape[-1]
+    uniform_weight =  epsilon / (num_classes - 1)
+    target_scaling = 1. - epsilon - uniform_weight
+    uniform = torch.ones_like(targets) * uniform_weight
+    return targets * target_scaling + uniform

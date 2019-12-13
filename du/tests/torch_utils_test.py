@@ -16,3 +16,11 @@ def test_cross_entropy_loss():
     numpy_allclose(
         du.torch_utils.cross_entropy_loss(logits, probs),
         ans)
+
+
+def test_label_smoothing():
+    numpy_allclose(
+        du.torch_utils.label_smoothing(torch.tensor([0, 1, 2]), epsilon=0.1),
+        [[0.9, 0.05, 0.05],
+         [0.05, 0.9, 0.05],
+         [0.05, 0.05, 0.9]])
