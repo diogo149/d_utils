@@ -1,5 +1,8 @@
 import du
+import random
+import numpy as np
 import torch
+import torch.nn.functional as F
 
 
 def adjust_learning_rate(optimizer, lr):
@@ -51,3 +54,29 @@ class AverageMeter(object):
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+def random_seed(seed):
+    """
+    randomly seed relevant values
+    see: https://discuss.pytorch.org/t/what-is-manual-seed/5939/16
+
+    note: this doesn't make everything determinisitc, because
+    CuDNN may not be:
+    https://pytorch.org/docs/stable/notes/randomness.html
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available() :
+        torch.cuda.manual_seed_all(seed)
+
+
+def cross_entropy_loss(logits, probs, axis=-1, reduction="mean"):
+    """
+    cross-entropy loss that supports probabilities as floats
+    """
+    tmp = -torch.sum(probs * F.log_softmax(logits, dim=axis), axis=axis)
+    if reduction == "mean":
+        return tmp.mean()
+    else:
+        raise ValueError
