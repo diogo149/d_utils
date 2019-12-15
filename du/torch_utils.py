@@ -3,6 +3,8 @@ import random
 import numpy as np
 import torch
 import torch.nn.functional as F
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
 
 
 def adjust_learning_rate(optimizer, lr):
@@ -90,3 +92,77 @@ def label_smoothing(target, epsilon, num_classes=-1):
     target_scaling = 1. - epsilon - uniform_weight
     uniform = torch.ones_like(target) * uniform_weight
     return target * target_scaling + uniform
+
+
+class ConcatDataset(torch.utils.data.Dataset):
+    def __init__(self, datasets):
+        self.datasets = datasets
+
+    def __len__(self):
+        return sum(map(len, self.datasets))
+
+    def __getitem__(self, idx):
+        # assumes all datasets use integer indices
+        # warning: no error checking
+        dataset_idx = 0
+        while idx >= len(self.datasets[dataset_idx]) and dataset_idx < (len(self.datasets) - 1):
+            idx -= len(self.datasets[dataset_idx])
+            dataset_idx += 1
+        return self.datasets[dataset_idx][idx]
+
+
+class AugmentedDataset(torch.utils.data.Dataset):
+    def __init__(self, dataset, augmented_data):
+        assert len(dataset) == len(augmented_data)
+        self.dataset = dataset
+        self.augmented_data
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        return self.dataset[idx] + (self.augmented_data[idx],)
+
+
+def cifar10_data(*, train, augmentation=None):
+    """
+    train: whether or not to access the train set
+
+    augmentation:
+      "standard": translation + h flipping
+      None: no augmentation
+    """
+    transform_list = [transforms.ToTensor(),
+                      transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                           [0.2023, 0.1994, 0.2010])]
+    if augmentation is None:
+        # do nothing
+        pass
+    elif augmentation == "standard":
+        transform_list = [
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+        ] + transform_list
+    elif isinstance(augmentation, list):
+        transform_list = augmentation + transform_list
+    else:
+        raise ValueError
+
+    transform = transforms.Compose(transform_list)
+
+    return datasets.CIFAR10(
+        root='~/data',
+        train=train,
+        download=True,
+        transform=transform)
+
+
+def mnist_data(*, train, augmentation=None):
+    assert augmentation is None
+    transform = transforms.Compose([transforms.ToTensor(),
+                                    transforms.Normalize((0.1307,), (0.3081,))])
+    return datasets.MNIST(
+        root="~/data",
+        train=train,
+        download=True,
+        transform=transform)
