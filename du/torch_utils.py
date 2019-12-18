@@ -117,7 +117,7 @@ class AugmentedDataset(torch.utils.data.Dataset):
     def __init__(self, dataset, augmented_data):
         assert len(dataset) == len(augmented_data)
         self.dataset = dataset
-        self.augmented_data
+        self.augmented_data = augmented_data
 
     def __len__(self):
         return len(self.dataset)
