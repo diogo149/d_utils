@@ -76,6 +76,8 @@ def random_seed(seed):
 def cross_entropy_loss(logits, probs, axis=-1, reduction="mean"):
     """
     cross-entropy loss that supports probabilities as floats
+
+    TODO is this the same as nn.KLDivLoss()
     """
     tmp = -torch.sum(probs * F.log_softmax(logits, dim=axis), axis=axis)
     if reduction == "mean":
