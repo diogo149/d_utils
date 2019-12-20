@@ -53,7 +53,7 @@ class MnistNet(nn.Module):
         return output
 
 
-class SimpleCnn(nn.Module):
+class SimpleCNN(nn.Module):
     def __init__(self, num_channels, num_classes):
         super(SimpleCNN, self).__init__()
         C = num_channels
