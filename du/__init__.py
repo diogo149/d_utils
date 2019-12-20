@@ -32,10 +32,12 @@ from . import joblib_utils
 from . import numpy_utils
 from . import parallel
 from . import performance_utils
+from . import ps_utils
 from . import preprocessing
 from . import random_utils
 from . import string_utils
 from . import tasks
+from . import timer_utils
 from . import walk_utils
 from . import trial
 from . import unsupervised

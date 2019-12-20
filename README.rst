@@ -14,6 +14,7 @@ dependencies
   * joblib
   * PyYAML
   * setproctitle
+  * psutil
   
 * optional
 
