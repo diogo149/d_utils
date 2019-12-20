@@ -261,6 +261,8 @@ class TorchTrial(object):
         register model for some features
         e.g. model saving
         """
+        print("registering model:")
+        print(model)
         self._model = model
 
 
