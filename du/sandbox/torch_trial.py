@@ -219,7 +219,8 @@ class TorchTrial(object):
             if self.enable_monitor_ui:
                 self.monitor_ui_writer = du.sandbox.monitor_ui.ResultWriter(
                     dirname=trial.file_path("monitor_ui"),
-                    default_settings_file=None)
+                    default_settings_file=du.templates.template_path(
+                        "torch_trial_monitor_ui.json"))
             else:
                 self.monitor_ui_writer = None
 

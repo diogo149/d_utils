@@ -1,0 +1,55 @@
+[
+  {
+    "title": "loss / accuracy",
+    "onlyRelevantTooltipKeys": true,
+    "rollingMeanWindow": 1,
+    "numXTicks": 11,
+    "numYTicks": 11,
+    "scales": {
+      "epoch": {
+        "keys": [
+          "_iter"
+        ],
+        "lower": "min",
+        "upper": "max",
+        "scale": "linear"
+      },
+      "loss": {
+        "keys": [
+          "loss"
+        ],
+        "scale": "linear",
+        "lower": "min",
+        "upper": "max"
+      },
+      "accuracy": {
+        "keys": [
+          "accuracy"
+        ],
+        "scale": "linear",
+        "lower": "min",
+        "upper": "max"
+      }
+    },
+    "x": {
+      "key": "_iter",
+      "scale": "epoch"
+    },
+    "ys": [
+      {
+        "keys": [
+          "loss"
+        ],
+        "scale": "loss",
+        "color": "category10"
+      },
+      {
+        "keys": [
+          "accuracy"
+        ],
+        "scale": "accuracy",
+        "color": "category10"
+      }
+    ]
+  }
+]
