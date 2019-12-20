@@ -1,4 +1,4 @@
-from .simple import MLP, MnistNet
+from .simple import MLP, MnistNet, SimpleCnn
 
 
 def wide_resnet(*args, **kwargs):
