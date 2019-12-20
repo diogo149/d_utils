@@ -124,6 +124,7 @@ class Summary(object):
 
         return decorator
 
+
 # -------
 # recipes
 # -------

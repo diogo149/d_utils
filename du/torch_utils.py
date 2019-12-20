@@ -168,3 +168,18 @@ def mnist_data(*, train, augmentation=None):
         train=train,
         download=True,
         transform=transform)
+
+
+def device_chooser(device_str, cudnn_benchmark=True):
+    if device_str is None:
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+            cudnn.benchmark = cudnn_benchmark
+            # enable multi-gpu
+            if torch.cuda.device_count() > 1:
+                model = torch.nn.DataParallel(model)
+        else:
+            device = torch.device("cpu")
+    else:
+        device = torch.device(device_str)
+    return device

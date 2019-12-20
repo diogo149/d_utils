@@ -44,7 +44,6 @@ import six
 import setproctitle
 
 from . import utils, random_utils, io_utils, yaml_db
-from .utils import toolz
 
 
 def cache_inspect():
@@ -456,7 +455,21 @@ def _run_trial_internal(trial_name,
         setproctitle.setproctitle(proc_title)
 
 
-def run_trial(*args, **kwargs):
+def _get_source_of_caller(additional_frames=0):
+    """
+    utility function to get source code of the file calling the function
+    calling this function (i.e. 2 levels up)
+    """
+    # this might be sketchy using inspect and is not REPL
+    # friendly
+    current_frame = inspect.currentframe()
+    outer_frames = inspect.getouterframes(current_frame)
+    # drop the first 2 (this function + the calling function)
+    caller_frame = outer_frames[2 + additional_frames][0]
+    return inspect.getsource(inspect.getmodule(caller_frame))
+
+
+def run_trial(*args, _run_trial_additional_frames=0, **kwargs):
     """
     wrapper around _run_trial_internal that reads the file that this function
     was called from and saves its contents as a string
@@ -464,23 +477,7 @@ def run_trial(*args, **kwargs):
     see docstring of _run_trial_internal for arguments
     """
     assert "trial_runner_string" not in kwargs
-
-    # read file that this function is called from
-    # ---
-    # this might be sketchy using inspect and is not REPL
-    # friendly
-    current_frame = inspect.currentframe()
-    outer_frames = inspect.getouterframes(current_frame)
-    caller_frames = list(toolz.thread_last(
-        outer_frames,
-        # not the first frame
-        (toolz.drop, 1),
-        # not in contextlib
-        (filter, lambda x: "contextlib.py" not in x[1]),
-    ))
-    caller_frame_tuple = caller_frames[0]
-    caller_frame = caller_frame_tuple[0]
-    runner_str = inspect.getsource(inspect.getmodule(caller_frame))
+    runner_str = _get_source_of_caller(_run_trial_additional_frames)
     # just a sanity check that it worked
     assert "run_trial(" in runner_str
     return _run_trial_internal(*args, trial_runner_string=runner_str, **kwargs)
