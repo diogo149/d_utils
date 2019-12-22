@@ -1,7 +1,9 @@
-import pprint
 import collections
 import contextlib
+import datetime
 import inspect
+import os
+import pprint
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -134,6 +136,12 @@ class TimedDataLoader(object):
             yield data
 
 
+def _calling_function_file():
+    for frame in inspect.getouterframes(inspect.currentframe()):
+        if frame[1] != __file__:
+            assert frame[1].endswith(".py")
+            return frame[1]
+
 class TorchTrial(object):
     """
     features:
@@ -163,6 +171,10 @@ class TorchTrial(object):
                  timer_summary_frequency=60):
         if params is None:
             params = du.AttrDict()
+        if name is None:
+            name = os.path.basename(_calling_function_file())[:-3]
+            # add day identifier for better filtering
+            name += "_" + datetime.datetime.now().strftime("%y%m%d")
 
         self.name = name
         self.params = params
@@ -255,6 +267,15 @@ class TorchTrial(object):
         simple wrapper for setting params
         """
         self.params.update(kwargs)
+
+    def set_important(self, key, value):
+        """
+        set the value of an important param and also add it to the name
+        """
+        assert trial is None
+        # need to replace dots because trial doesn't allow it in the name
+        self.name += ("_%s-%s" % (key, value)).replace(".", "_")
+        self.params[key] = value
 
     def register_model(self, model):
         """
