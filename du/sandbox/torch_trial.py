@@ -272,7 +272,7 @@ class TorchTrial(object):
         """
         set the value of an important param and also add it to the name
         """
-        assert trial is None
+        assert self.trial is None
         # need to replace dots because trial doesn't allow it in the name
         self.name += ("_%s-%s" % (key, value)).replace(".", "_")
         self.params[key] = value
