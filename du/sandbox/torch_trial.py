@@ -160,7 +160,7 @@ class TorchTrial(object):
     """
 
     def __init__(self,
-                 name,
+                 name=None,
                  params=None,
                  enable_tensorboard=True,
                  enable_monitor_ui=True,
