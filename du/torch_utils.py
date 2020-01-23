@@ -1,4 +1,5 @@
 import du
+import collections
 import random
 import numpy as np
 import torch
@@ -10,14 +11,14 @@ import torchvision.datasets as datasets
 def adjust_learning_rate(optimizer, lr):
     """Adjust the learning rate of an optimizer"""
     for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+        param_group["lr"] = lr
 
 
 def save_model(trial, name, model):
-    with du.timer("save model (%s) for %s:%d" %
-                  (name, trial.trial_name, trial.iteration_num)):
-        torch.save(model.state_dict(),
-                   trial.file_path("model_%s.pth" % name))
+    with du.timer(
+        "save model (%s) for %s:%d" % (name, trial.trial_name, trial.iteration_num)
+    ):
+        torch.save(model.state_dict(), trial.file_path("model_%s.pth" % name))
 
 
 def accuracy(output, target, topk=(1,)):
@@ -42,6 +43,7 @@ def accuracy(output, target, topk=(1,)):
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 
@@ -57,6 +59,7 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
+
 def random_seed(seed):
     """
     randomly seed relevant values
@@ -69,7 +72,7 @@ def random_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    if torch.cuda.is_available() :
+    if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
 
@@ -90,8 +93,8 @@ def label_smoothing(target, epsilon, num_classes=-1):
     if target.ndim == 1 and target.dtype == torch.int64:
         target = F.one_hot(target, num_classes=num_classes).float()
     num_classes = target.shape[-1]
-    uniform_weight =  epsilon / (num_classes - 1)
-    target_scaling = 1. - epsilon - uniform_weight
+    uniform_weight = epsilon / (num_classes - 1)
+    target_scaling = 1.0 - epsilon - uniform_weight
     uniform = torch.ones_like(target) * uniform_weight
     return target * target_scaling + uniform
 
@@ -107,7 +110,9 @@ class ConcatDataset(torch.utils.data.Dataset):
         # assumes all datasets use integer indices
         # warning: no error checking
         dataset_idx = 0
-        while idx >= len(self.datasets[dataset_idx]) and dataset_idx < (len(self.datasets) - 1):
+        while idx >= len(self.datasets[dataset_idx]) and dataset_idx < (
+            len(self.datasets) - 1
+        ):
             idx -= len(self.datasets[dataset_idx])
             dataset_idx += 1
         return self.datasets[dataset_idx][idx]
@@ -134,9 +139,10 @@ def cifar10_data(*, train, augmentation=None):
       "standard": translation + h flipping
       None: no augmentation
     """
-    transform_list = [transforms.ToTensor(),
-                      transforms.Normalize([0.4914, 0.4822, 0.4465],
-                                           [0.2023, 0.1994, 0.2010])]
+    transform_list = [
+        transforms.ToTensor(),
+        transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010]),
+    ]
     if augmentation is None:
         # do nothing
         pass
@@ -148,34 +154,39 @@ def cifar10_data(*, train, augmentation=None):
     elif isinstance(augmentation, list):
         transform_list = augmentation + transform_list
     else:
-        raise ValueError
+        raise ValueError("invalid augmentation %s" % repr(augmentation))
 
     transform = transforms.Compose(transform_list)
 
     return datasets.CIFAR10(
-        root='~/data',
-        train=train,
-        download=True,
-        transform=transform)
+        root="~/data", train=train, download=True, transform=transform
+    )
 
 
 def mnist_data(*, train, augmentation=None):
-    assert augmentation is None
-    transform = transforms.Compose([transforms.ToTensor(),
-                                    transforms.Normalize((0.1307,), (0.3081,))])
+    transform_list = [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+
+    if augmentation is None:
+        # do nothing
+        pass
+    elif isinstance(augmentation, list):
+        transform_list = augmentation + transform_list
+    else:
+        raise ValueError("invalid augmentation %s" % repr(augmentation))
+
+    transform = transforms.Compose(transform_list)
     return datasets.MNIST(
-        root="~/data",
-        train=train,
-        download=True,
-        transform=transform)
+        root="~/data", train=train, download=True, transform=transform
+    )
 
 
 def device_chooser(device_str, cudnn_benchmark=True):
     if device_str is None:
         if torch.cuda.is_available():
             device = torch.device("cuda")
-            cudnn.benchmark = cudnn_benchmark
+            torch.backends.cudnn.benchmark = cudnn_benchmark
             # enable multi-gpu
+            # FIXME
             if torch.cuda.device_count() > 1:
                 model = torch.nn.DataParallel(model)
         else:
@@ -183,3 +194,12 @@ def device_chooser(device_str, cudnn_benchmark=True):
     else:
         device = torch.device(device_str)
     return device
+
+
+def copy_state_dict(state_dict):
+    new_dict = collections.OrderedDict()
+    for k, v in state_dict.items():
+        # on best approach to copying tensors:
+        # https://stackoverflow.com/questions/49178967/copying-a-pytorch-variable-to-a-numpy-array
+        new_dict[k] = v.cpu().numpy().copy()
+    return new_dict
