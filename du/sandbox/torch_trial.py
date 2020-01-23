@@ -59,9 +59,9 @@ class AutoSummary(object):
             if "best_iter" not in params:
                 params.best_iter = None
             if "update_fn" not in params:
+
                 def update_fn():
-                    if (params.best_iter is None
-                        or params.value < params.best_value):
+                    if params.best_iter is None or params.value < params.best_value:
                         params.best_value = params.value
                         params.best_iter = params._iter
 
@@ -77,21 +77,19 @@ class AutoSummary(object):
             if "best_iter" not in params:
                 params.best_iter = None
             if "update_fn" not in params:
+
                 def update_fn():
-                    if (params.best_iter is None
-                        or params.value > params.best_value):
+                    if params.best_iter is None or params.value > params.best_value:
                         params.best_value = params.value
                         params.best_iter = params._iter
 
                         if "on_best" in params:
                             params.on_best(params)
 
-
                 params.update_fn = update_fn
         else:
             # just keep most recent value
             assert on_best is None
-
 
     def log(self, key, value):
         if key not in self.fields:
@@ -105,17 +103,22 @@ class AutoSummary(object):
         if "update_fn" in params:
             params.update_fn()
 
-
     def to_org_list(self):
         out_strs = []
         for f in sorted(self.fields.keys()):
             params = self.fields[f]
             if params.value is not None:
-                out_strs += ["".join([" " * self.org_list_spaces,
-                                      "- ",
-                                      f,
-                                      ": ",
-                                      params.format % params.value])]
+                out_strs += [
+                    "".join(
+                        [
+                            " " * self.org_list_spaces,
+                            "- ",
+                            f,
+                            ": ",
+                            params.format % params.value,
+                        ]
+                    )
+                ]
 
         return "\n".join(out_strs)
 
@@ -142,6 +145,7 @@ def _calling_function_file():
             assert frame[1].endswith(".py")
             return frame[1]
 
+
 class TorchTrial(object):
     """
     features:
@@ -159,16 +163,18 @@ class TorchTrial(object):
     - resuming training
     """
 
-    def __init__(self,
-                 name=None,
-                 params=None,
-                 enable_tensorboard=True,
-                 enable_monitor_ui=True,
-                 save_last_model=True,
-                 save_best_model_metric=None,
-                 org_list_spaces=2,
-                 random_seed=42,
-                 timer_summary_frequency=60):
+    def __init__(
+        self,
+        name=None,
+        params=None,
+        enable_tensorboard=True,
+        enable_monitor_ui=True,
+        save_last_model=True,
+        save_best_model_metric=None,
+        org_list_spaces=2,
+        random_seed=42,
+        timer_summary_frequency=60,
+    ):
         if params is None:
             params = du.AttrDict()
         if name is None:
@@ -190,16 +196,16 @@ class TorchTrial(object):
         # NOTE: these mutate global state
         if random_seed is not None:
             du.torch_utils.random_seed(random_seed)
-        du.timer_utils.DEFAULT_TIMER.settings.summary_frequency \
-            = timer_summary_frequency
+        du.timer_utils.DEFAULT_TIMER.settings.summary_frequency = (
+            timer_summary_frequency
+        )
 
         self._model = None
         self._logs = []
 
     def reset_iteration_log(self):
         self._iteration_log = collections.OrderedDict(
-            _iter=self._iter,
-            _trial=self.trial_id,
+            _iter=self._iter, _trial=self.trial_id
         )
 
     def reset_subiteration_log(self):
@@ -208,11 +214,13 @@ class TorchTrial(object):
 
     @contextlib.contextmanager
     def run_trial(self, **kwargs):
-        with du.trial.run_trial(trial_name=self.name,
-                                # 1 frame for torch_trial.py
-                                # 1 frame for contextlib.py
-                                _run_trial_additional_frames=2,
-                                **kwargs) as trial:
+        with du.trial.run_trial(
+            trial_name=self.name,
+            # 1 frame for torch_trial.py
+            # 1 frame for contextlib.py
+            _run_trial_additional_frames=2,
+            **kwargs
+        ) as trial:
             self.trial = trial
             self.trial_id = "%s:%d" % (trial.trial_name, trial.iteration_num)
 
@@ -223,7 +231,8 @@ class TorchTrial(object):
             # setup tensorboard
             if self.enable_tensorboard:
                 self.tensorboard_writer = SummaryWriter(
-                    log_dir=trial.file_path("%s_tensorboard" % self.trial_id))
+                    log_dir=trial.file_path("%s_tensorboard" % self.trial_id)
+                )
             else:
                 self.tensorboard_writer = None
 
@@ -232,7 +241,9 @@ class TorchTrial(object):
                 self.monitor_ui_writer = du.sandbox.monitor_ui.ResultWriter(
                     dirname=trial.file_path("monitor_ui"),
                     default_settings_file=du.templates.template_path(
-                        "torch_trial_monitor_ui.json"))
+                        "torch_trial_monitor_ui.json"
+                    ),
+                )
             else:
                 self.monitor_ui_writer = None
 
@@ -243,20 +254,18 @@ class TorchTrial(object):
             # for the sake of ease, making these 1-indexed
 
             if self.save_best_model_metric is not None:
+
                 def on_best_fn(params):
                     assert self._model is not None
-                    du.torch_utils.save_model(self.trial, "best",
-                                              self._model)
+                    du.torch_utils.save_model(self.trial, "best", self._model)
 
                     # also log the best metric
-                    self.summary.log(params.key + " best",
-                                     value=params.best_value)
-                    self.summary.log(params.key + " best iter",
-                                     value=params.best_iter)
+                    self.summary.log(params.key + " best", value=params.best_value)
+                    self.summary.log(params.key + " best iter", value=params.best_iter)
 
-                self.summary.setup_key(self.save_best_model_metric,
-                                       on_best=on_best_fn,
-                                       format="%.4g")
+                self.summary.setup_key(
+                    self.save_best_model_metric, on_best=on_best_fn, format="%.4g"
+                )
             yield trial
 
     def time_data_loader(self, key, data_loader):
@@ -285,7 +294,6 @@ class TorchTrial(object):
         print("registering model:")
         print(model)
         self._model = model
-
 
     @contextlib.contextmanager
     def logged_timer(self, key):
@@ -316,15 +324,13 @@ class TorchTrial(object):
         if self.enable_tensorboard:
             for k, v in self._iteration_log.items():
                 if "/" in k:
-                    self.tensorboard_writer.add_scalar(
-                        k, v, global_step=self._iter)
+                    self.tensorboard_writer.add_scalar(k, v, global_step=self._iter)
         if self.enable_monitor_ui:
             self.monitor_ui_writer.write(self._iteration_log)
 
         self._iter += 1
         self.reset_iteration_log()
         self.reset_subiteration_log()
-
 
     def done(self):
         print("DONE TorchTrial")
