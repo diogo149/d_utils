@@ -332,6 +332,9 @@ class TorchTrial(object):
         self.reset_iteration_log()
         self.reset_subiteration_log()
 
+    def last_log(self):
+        return self._logs[-1]
+
     def done(self):
         print("DONE TorchTrial")
         self.summary.log("time/total", value=du.ps_utils.process_time())
