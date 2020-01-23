@@ -58,7 +58,13 @@ def cache_inspect():
         if module is not None:
             inspect.getsource(module)
 
-cache_inspect()
+
+try:
+    cache_inspect()
+except Exception as e:
+    # catch exception for running for REPL
+    if str(e) != "<module '__main__'> is a built-in module":
+        raise e
 
 
 def get_next_iteration_num(path):
