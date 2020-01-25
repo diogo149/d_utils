@@ -30,8 +30,8 @@ class AutoSummary(object):
         self.org_list_spaces = org_list_spaces
         self.fields = {}
 
-    def setup_key(self, key, on_best=None, format=None, sample_value=None):
-        assert format or sample_value
+    def setup_key(self, key, on_best=None, fmt=None, sample_value=None):
+        assert fmt is not None or sample_value is not None
 
         # build a profile
         if key in self.fields:
@@ -44,13 +44,13 @@ class AutoSummary(object):
             params.on_best = on_best
         if sample_value is not None:
             if isinstance(sample_value, str):
-                params.format = "%s"
+                params.fmt = "%s"
             else:
                 # otherwise assume numerical
-                params.format = "%.4g"
+                params.fmt = "%.4g"
 
-        if format is not None:
-            params.format = format
+        if fmt is not None:
+            params.fmt = fmt
 
         if key.startswith("loss/"):
             # lower = better
@@ -115,7 +115,7 @@ class AutoSummary(object):
                             "- ",
                             f,
                             ": ",
-                            params.format % params.value,
+                            params.fmt % params.value,
                         ]
                     )
                 ]
@@ -264,7 +264,7 @@ class TorchTrial(object):
                     self.summary.log(params.key + " best iter", value=params.best_iter)
 
                 self.summary.setup_key(
-                    self.save_best_model_metric, on_best=on_best_fn, format="%.4g"
+                    self.save_best_model_metric, on_best=on_best_fn, fmt="%.4g"
                 )
             yield trial
 

@@ -186,7 +186,7 @@ def device_chooser(device_str, cudnn_benchmark=True):
             device = torch.device("cuda")
             torch.backends.cudnn.benchmark = cudnn_benchmark
             # enable multi-gpu
-            # FIXME
+            # FIXME model isn't given
             if torch.cuda.device_count() > 1:
                 model = torch.nn.DataParallel(model)
         else:
@@ -201,5 +201,6 @@ def copy_state_dict(state_dict):
     for k, v in state_dict.items():
         # on best approach to copying tensors:
         # https://stackoverflow.com/questions/49178967/copying-a-pytorch-variable-to-a-numpy-array
-        new_dict[k] = v.cpu().numpy().copy()
+        # https://pytorch.org/docs/stable/tensors.html
+        new_dict[k] = v.clone().detach().cpu()
     return new_dict
