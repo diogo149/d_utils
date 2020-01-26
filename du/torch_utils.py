@@ -8,10 +8,17 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
 
+def adjust_optimizer_param(optimizer, k, v):
+    """
+    adjust parameter of an optimizer e.g. lr
+    """
+    for param_group in optimizer.param_groups:
+        param_group[k] = v
+
+
 def adjust_learning_rate(optimizer, lr):
     """Adjust the learning rate of an optimizer"""
-    for param_group in optimizer.param_groups:
-        param_group["lr"] = lr
+    adjust_optimizer_param(optimizer, "lr", lr)
 
 
 def save_model(trial, name, model):
@@ -196,11 +203,14 @@ def device_chooser(device_str, cudnn_benchmark=True):
     return device
 
 
-def copy_state_dict(state_dict):
+def copy_state_dict(state_dict, device=None):
     new_dict = collections.OrderedDict()
     for k, v in state_dict.items():
         # on best approach to copying tensors:
         # https://stackoverflow.com/questions/49178967/copying-a-pytorch-variable-to-a-numpy-array
         # https://pytorch.org/docs/stable/tensors.html
-        new_dict[k] = v.clone().detach().cpu()
+        new_v = v.clone().detach()
+        if device is not None:
+            new_v = new_v.to(device)
+        new_dict[k] = new_v
     return new_dict
