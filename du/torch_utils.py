@@ -138,7 +138,18 @@ class AugmentedDataset(torch.utils.data.Dataset):
         return self.dataset[idx] + (self.augmented_data[idx],)
 
 
-def cifar10_data(*, train, augmentation=None):
+def cifar10_standard_augmentation():
+    return [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip()]
+
+
+def cifar10_transforms():
+    return [
+        transforms.ToTensor(),
+        transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010]),
+    ]
+
+
+def cifar10_data(*, train, augmentation=None, transform_list=None):
     """
     train: whether or not to access the train set
 
@@ -146,22 +157,17 @@ def cifar10_data(*, train, augmentation=None):
       "standard": translation + h flipping
       None: no augmentation
     """
-    transform_list = [
-        transforms.ToTensor(),
-        transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010]),
-    ]
-    if augmentation is None:
-        # do nothing
-        pass
-    elif augmentation == "standard":
-        transform_list = [
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-        ] + transform_list
-    elif isinstance(augmentation, list):
-        transform_list = augmentation + transform_list
-    else:
-        raise ValueError("invalid augmentation %s" % repr(augmentation))
+    if transform_list is None:
+        transform_list = cifar10_transforms()
+        if augmentation is None:
+            # do nothing
+            pass
+        elif augmentation == "standard":
+            transform_list = cifar10_standard_augmentation() + transform_list
+        elif isinstance(augmentation, list):
+            transform_list = augmentation + transform_list
+        else:
+            raise ValueError("invalid augmentation %s" % repr(augmentation))
 
     transform = transforms.Compose(transform_list)
 
@@ -170,16 +176,21 @@ def cifar10_data(*, train, augmentation=None):
     )
 
 
-def mnist_data(*, train, augmentation=None):
-    transform_list = [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+def mnist_transforms():
+    return [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
 
-    if augmentation is None:
-        # do nothing
-        pass
-    elif isinstance(augmentation, list):
-        transform_list = augmentation + transform_list
-    else:
-        raise ValueError("invalid augmentation %s" % repr(augmentation))
+
+def mnist_data(*, train, augmentation=None, transform_list=None):
+    if transform_list is None:
+        transform_list = mnist_transforms()
+
+        if augmentation is None:
+            # do nothing
+            pass
+        elif isinstance(augmentation, list):
+            transform_list = augmentation + transform_list
+        else:
+            raise ValueError("invalid augmentation %s" % repr(augmentation))
 
     transform = transforms.Compose(transform_list)
     return datasets.MNIST(
@@ -193,9 +204,11 @@ def device_chooser(device_str, cudnn_benchmark=True):
             device = torch.device("cuda")
             torch.backends.cudnn.benchmark = cudnn_benchmark
             # enable multi-gpu
-            # FIXME model isn't given
+            raise NotImplementedError
             if torch.cuda.device_count() > 1:
-                model = torch.nn.DataParallel(model)
+                # FIXME model isn't given
+                # model = torch.nn.DataParallel(model)
+                pass
         else:
             device = torch.device("cpu")
     else:
@@ -214,3 +227,57 @@ def copy_state_dict(state_dict, device=None):
             new_v = new_v.to(device)
         new_dict[k] = new_v
     return new_dict
+
+
+class Cutout(object):
+    """Randomly mask out one or more patches from an image.
+
+    NOTE: meant to be places after transforms.ToTensor()
+
+    Args:
+        n_holes (int): Number of patches to cut out of each image.
+        length (int): The length (in pixels) of each square patch.
+
+    from https://github.com/uoguelph-mlrg/Cutout
+    """
+
+    def __init__(self, n_holes=1, length=0.5):
+        self.n_holes = n_holes
+        self.length = length
+
+    def __call__(self, img):
+        """
+        Args:
+            img (Tensor): Tensor image of size (C, H, W).
+        Returns:
+            Tensor: Image with n_holes of dimension length x length cut out of it.
+        """
+        h = img.size(1)
+        w = img.size(2)
+
+        if isinstance(self.length, int):
+            h_len = w_len = self.length
+        elif isinstance(self.length, float):
+            h_len = int(round(h * self.length))
+            w_len = int(round(w * self.length))
+        else:
+            raise ValueError(self.length)
+
+        mask = np.ones((h, w), np.float32)
+
+        for n in range(self.n_holes):
+            y = np.random.randint(h)
+            x = np.random.randint(w)
+
+            y1 = np.clip(y - h_len // 2, 0, h)
+            y2 = np.clip(y + h_len // 2, 0, h)
+            x1 = np.clip(x - w_len // 2, 0, w)
+            x2 = np.clip(x + w_len // 2, 0, w)
+
+            mask[y1:y2, x1:x2] = 0.0
+
+        mask = torch.from_numpy(mask)
+        mask = mask.expand_as(img)
+        img = img * mask
+
+        return img
