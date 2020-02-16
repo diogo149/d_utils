@@ -16,6 +16,14 @@ def adjust_optimizer_param(optimizer, k, v):
         param_group[k] = v
 
 
+def apply_to_optimizer_param(optimizer, k, fn):
+    """
+    apply a function to an optimizer's parameter
+    """
+    for param_group in optimizer.param_groups:
+        param_group[k] = fn(param_group[k])
+
+
 def adjust_learning_rate(optimizer, lr):
     """Adjust the learning rate of an optimizer"""
     adjust_optimizer_param(optimizer, "lr", lr)
