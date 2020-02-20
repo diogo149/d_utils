@@ -212,11 +212,11 @@ def device_chooser(device_str, cudnn_benchmark=True):
             device = torch.device("cuda")
             torch.backends.cudnn.benchmark = cudnn_benchmark
             # enable multi-gpu
-            raise NotImplementedError
-            if torch.cuda.device_count() > 1:
-                # FIXME model isn't given
-                # model = torch.nn.DataParallel(model)
-                pass
+            # FIXME model isn't given
+            # raise NotImplementedError
+            # if torch.cuda.device_count() > 1:
+            #     # model = torch.nn.DataParallel(model)
+            #     pass
         else:
             device = torch.device("cpu")
     else:

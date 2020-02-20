@@ -5,8 +5,6 @@ import inspect
 import os
 import pprint
 
-from torch.utils.tensorboard import SummaryWriter
-
 import du
 import du.torch_utils
 import du.sandbox.monitor_ui
@@ -230,6 +228,8 @@ class TorchTrial(object):
 
             # setup tensorboard
             if self.enable_tensorboard:
+                from torch.utils.tensorboard import SummaryWriter
+
                 self.tensorboard_writer = SummaryWriter(
                     log_dir=trial.file_path("%s_tensorboard" % self.trial_id)
                 )
