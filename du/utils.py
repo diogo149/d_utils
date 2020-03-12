@@ -32,10 +32,10 @@ with open(DEFAULT_SETTINGS_PATH) as f:
 
 if config["toolz"]["use_cytoolz"]:
     import cytoolz as toolz
-    from cytoolz.functoolz import (compose, identity)
+    from cytoolz.functoolz import compose, identity
 else:
     import toolz
-    from toolz.functoolz import (compose, identity)
+    from toolz.functoolz import compose, identity
 
 from functools import partial
 
@@ -43,8 +43,8 @@ from functools import partial
 
 logging.config.fileConfig(DEFAULT_LOG_SETTINGS_PATH)
 
-DEFAULT_LOGGER = logging.getLogger()
-SIMPLE_LOGGER = logging.getLogger("simple")
+DEFAULT_LOGGER = logging.getLogger("du_default")
+SIMPLE_LOGGER = logging.getLogger("du_simple")
 
 debug = DEFAULT_LOGGER.debug
 info = DEFAULT_LOGGER.info
@@ -64,6 +64,7 @@ simple_exception = SIMPLE_LOGGER.exception
 def noop_fn(*args, **kwargs):
     pass
 
+
 log_level_to_log_fn = {
     "debug": simple_debug,
     "info": simple_info,
@@ -71,7 +72,7 @@ log_level_to_log_fn = {
     "error": simple_error,
     "critical": simple_critical,
     "none": noop_fn,
-    None: noop_fn
+    None: noop_fn,
 }
 
 # a 1-time warning that can be disabled -- different from logging.warning
@@ -83,32 +84,39 @@ warn_once = warnings.warn
 def deprecated(func):
     """ warns if decorated function is used
     """
+
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         warn_once("Deprecated: {}".format(func))
         return func(*args, **kwargs)
+
     return wrapped
 
 
 def untested(func):
     """ warns if decorated function is used
     """
+
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         warn_once("Untested: {}".format(func))
         return func(*args, **kwargs)
+
     return wrapped
 
 
 def todo(msg):
     """ alerts about a todo if decorated function is used
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
             warn_once("TODO: {}; {}".format(func, msg))
             return func(*args, **kwargs)
+
         return wrapped
+
     return decorator
 
 
@@ -116,19 +124,21 @@ def trace(func):
     """
     Logs input, output, and time takes of a decorated function.
     """
+
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        simple_debug('Calling %s', func)
-        simple_debug('INPUT (args)  : %s', args)
-        simple_debug('INPUT (kwargs): %s', kwargs)
+        simple_debug("Calling %s", func)
+        simple_debug("INPUT (args)  : %s", args)
+        simple_debug("INPUT (kwargs): %s", kwargs)
         start_time = time.time()
         try:
             output = func(*args, **kwargs)
         finally:
-            simple_debug('Returning %s', func)
-            simple_debug('Took: %lf secs', time.time() - start_time)
-        simple_debug('OUTPUT', output)
+            simple_debug("Returning %s", func)
+            simple_debug("Took: %lf secs", time.time() - start_time)
+        simple_debug("OUTPUT", output)
         return output
+
     return wrapped
 
 
@@ -143,6 +153,7 @@ def memoize(func):
         if key not in cache:
             cache[key] = func(*args, **kwargs)
         return cache[key]
+
     return wrapped
 
 
@@ -150,17 +161,21 @@ def ignore_output(func):
     """Make function return None instead of its output
     useful for functions with side-effects (eg. memoization)
     """
+
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         func(*args, **kwargs)
+
     return wrapped
 
 
 # ################################## cache ##################################
 
-PERSISTENT_CACHE = joblib.Memory(cachedir=config["cache"]["dir"],
-                                 verbose=config["cache"]["verbose"],
-                                 mmap_mode=config["cache"]["mmap_mode"])
+PERSISTENT_CACHE = joblib.Memory(
+    cachedir=config["cache"]["dir"],
+    verbose=config["cache"]["verbose"],
+    mmap_mode=config["cache"]["mmap_mode"],
+)
 
 # NOTE: this is a function decorator
 persistent_cache = PERSISTENT_CACHE.cache
@@ -185,6 +200,7 @@ class AttrDict(dict):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
 
+
 # ############################# rotations utils #############################
 
 
@@ -193,6 +209,7 @@ def rotations_to_radians(rotations):
     converts radians to rotations
     """
     return np.pi * 2 * rotations
+
 
 # ############################# exception handler ###########################
 
