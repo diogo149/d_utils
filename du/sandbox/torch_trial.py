@@ -167,6 +167,7 @@ class TorchTrial(object):
         params=None,
         enable_tensorboard=True,
         enable_monitor_ui=True,
+        enable_wandb=False,
         save_last_model=True,
         save_best_model_metric=None,
         org_list_spaces=2,
@@ -184,6 +185,7 @@ class TorchTrial(object):
         self.params = params
         self.enable_tensorboard = enable_tensorboard
         self.enable_monitor_ui = enable_monitor_ui
+        self.enable_wandb = enable_wandb
         self.save_last_model = save_last_model
         self.save_best_model_metric = save_best_model_metric
         self.org_list_spaces = org_list_spaces
@@ -246,6 +248,14 @@ class TorchTrial(object):
                 )
             else:
                 self.monitor_ui_writer = None
+
+            # setup wandb
+            if self.enable_wandb:
+                import wandb
+
+                self.wandb_run = wandb.init(project="personal", name=self.trial_id)
+            else:
+                self.wandb_run = None
 
             # setup more state
             self._iter = 1
@@ -327,6 +337,10 @@ class TorchTrial(object):
                     self.tensorboard_writer.add_scalar(k, v, global_step=self._iter)
         if self.enable_monitor_ui:
             self.monitor_ui_writer.write(self._iteration_log)
+        if self.enable_wandb:
+            self.wandb_run.log(
+                {k: v for k, v in self._iteration_log.items() if "/" in k}
+            )
 
         self._iter += 1
         self.reset_iteration_log()
